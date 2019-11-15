@@ -1,0 +1,21 @@
+Name: Worlmix
+
+
+Listings => categories
+Services
+Jobs
+Cars
+Property
+
+
+ Sub Categories
+	HigherLevelSubCategory
+		MidleLevelSubCategory
+			LowerLevelSubCategory
+				Brand
+					Model
+						ProductListing
+Color Palettes:
+
+
+Icons:
