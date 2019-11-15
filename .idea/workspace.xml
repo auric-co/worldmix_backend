@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="553cbdfd-2f44-43ac-a4ad-8b736fc1d39f" name="Default" comment="" />
+    <list default="true" id="553cbdfd-2f44-43ac-a4ad-8b736fc1d39f" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/system/System.php" afterPath="$PROJECT_DIR$/app/src/system/System.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/system/constants.php" afterPath="$PROJECT_DIR$/app/src/system/constants.php" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,52 +22,36 @@
       <file leaf-file-name="System.php" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/system/System.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="536">
-              <caret line="150" column="5" lean-forward="true" selection-start-line="150" selection-start-column="5" selection-end-line="150" selection-end-column="5" />
+            <state relative-caret-position="459">
+              <caret line="668" column="54" lean-forward="false" selection-start-line="668" selection-start-column="54" selection-end-line="668" selection-end-column="54" />
               <folding>
                 <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
                 <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
                 <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
                 <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
                 <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-                <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-                <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-                <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-                <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-                <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-                <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-                <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-                <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-                <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-                <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-                <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-                <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-                <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-                <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-                <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-                <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-                <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-                <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-                <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-                <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-                <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-                <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-                <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-                <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+                <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+                <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+                <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+                <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+                <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+                <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+                <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+                <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+                <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+                <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+                <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="constants.php" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/system/constants.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -104,7 +92,6 @@
       <list>
         <option value="$PROJECT_DIR$/app/src/system/MembershipNumber.php" />
         <option value="$PROJECT_DIR$/app/src/system/Database.php" />
-        <option value="$PROJECT_DIR$/app/src/system/constants.php" />
         <option value="$PROJECT_DIR$/app/src/system/Admin.php" />
         <option value="$PROJECT_DIR$/app/templates/home.twig" />
         <option value="$PROJECT_DIR$/app/src/system/Blog.php" />
@@ -113,6 +100,7 @@
         <option value="$PROJECT_DIR$/../velocity-dashboard/login/index.php" />
         <option value="$PROJECT_DIR$/../velocity-dashboard/img/icons/webmanifest.json" />
         <option value="$PROJECT_DIR$/app/routes.php" />
+        <option value="$PROJECT_DIR$/app/src/system/constants.php" />
         <option value="$PROJECT_DIR$/app/src/system/System.php" />
       </list>
     </option>
@@ -344,12 +332,12 @@
       <workItem from="1569488674991" duration="699000" />
       <workItem from="1572980177209" duration="12928000" />
       <workItem from="1573068153325" duration="6968000" />
-      <workItem from="1573809128850" duration="1973000" />
+      <workItem from="1573809128850" duration="4055000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="29484000" />
+    <option name="totallyTimeSpent" value="31566000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="0" />
@@ -414,45 +402,19 @@
             <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-            <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-            <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-            <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-            <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-            <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-            <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-            <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-            <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-            <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-            <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-            <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-            <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-            <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-            <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+            <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+            <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+            <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+            <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+            <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+            <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+            <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
           </folding>
         </state>
       </provider>
@@ -737,45 +699,19 @@
             <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-            <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-            <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-            <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-            <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-            <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-            <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-            <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-            <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-            <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-            <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-            <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-            <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-            <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-            <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+            <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+            <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+            <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+            <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+            <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+            <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+            <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
           </folding>
         </state>
       </provider>
@@ -1024,45 +960,19 @@
             <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-            <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-            <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-            <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-            <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-            <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-            <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-            <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-            <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-            <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-            <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-            <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-            <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-            <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-            <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+            <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+            <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+            <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+            <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+            <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+            <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+            <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
           </folding>
         </state>
       </provider>
@@ -1306,45 +1216,19 @@
             <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-            <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-            <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-            <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-            <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-            <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-            <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-            <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-            <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-            <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-            <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-            <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-            <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-            <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-            <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+            <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+            <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+            <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+            <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+            <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+            <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+            <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
           </folding>
         </state>
       </provider>
@@ -1623,14 +1507,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="288">
           <caret line="17" column="103" lean-forward="false" selection-start-line="17" selection-start-column="92" selection-end-line="17" selection-end-column="103" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/system/constants.php">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="6" lean-forward="false" selection-start-line="25" selection-start-column="6" selection-end-line="25" selection-end-column="6" />
           <folding />
         </state>
       </provider>
@@ -1929,53 +1805,35 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/system/constants.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="31" lean-forward="false" selection-start-line="9" selection-start-column="31" selection-end-line="9" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/system/System.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="536">
-          <caret line="150" column="5" lean-forward="true" selection-start-line="150" selection-start-column="5" selection-end-line="150" selection-end-column="5" />
+        <state relative-caret-position="459">
+          <caret line="668" column="54" lean-forward="false" selection-start-line="668" selection-start-column="54" selection-end-line="668" selection-end-column="54" />
           <folding>
             <element signature="n#escape_data#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#validateParameter#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#createString#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#login#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#changePassword#0;n#System#0;n#!!top" expanded="false" />
             <element signature="n#Register#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscribe#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscription#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packages#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#subscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#BillPayment#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#getSubscriptionBill#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#creditSubscriptionInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#memberInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#age#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#invoicePackage#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#packagePrice#0;n#System#0;n#!!top" expanded="false" />
-            <element signature="n#dependantInvoice#0;n#System#0;n#!!top" expanded="false" />
-            <marker date="1573818637836" expanded="true" signature="12542:12594" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="12727:12781" ph="SELECT * FRO... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14780:14840" ph="SELECT COUNT... member_login" />
-            <marker date="1573818637836" expanded="true" signature="14974:15035" ph="SELECT `pin`... member_login" />
-            <marker date="1573818637836" expanded="true" signature="15466:15530" ph="UPDATE `memb... " />
-            <marker date="1573818637836" expanded="true" signature="17984:18036" ph="SELECT COUNT... members" />
-            <marker date="1573818637836" expanded="true" signature="18559:18793" ph="INSERT INTO `members`... " />
-            <marker date="1573818637836" expanded="true" signature="19112:19227" ph="INSERT INTO `member_details`... " />
-            <marker date="1573818637836" expanded="true" signature="19266:19418" ph="INSERT INTO `member_login`... " />
-            <marker date="1573818637836" expanded="true" signature="21639:21681" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="21895:22011" ph="SELECT `memb... dependant" />
-            <marker date="1573818637836" expanded="true" signature="24647:24774" ph="INSERT INTO `subscriptions`... " />
-            <marker date="1573818637836" expanded="true" signature="25929:26024" ph="SELECT * FRO... subscriptions" />
-            <marker date="1573818637836" expanded="true" signature="26263:26295" ph="SELECT * FRO... packages" />
-            <marker date="1573818637836" expanded="true" signature="27383:27557" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="28417:28538" ph="INSERT INTO `payment_confirmation`... " />
-            <marker date="1573818637836" expanded="true" signature="28814:28955" ph="UPDATE `paym... " />
-            <marker date="1573818637836" expanded="true" signature="30732:30800" ph="SELECT * FRO... payment" />
-            <marker date="1573818637836" expanded="true" signature="32958:32981" ph="SELECT * FRO... members" />
-            <marker date="1573818637836" expanded="true" signature="33650:33823" ph="INSERT INTO `payment`... " />
-            <marker date="1573818637836" expanded="true" signature="34259:34323" ph="SELECT `pack... member_details" />
-            <marker date="1573818637836" expanded="true" signature="34508:34557" ph="SELECT `pric... packages" />
-            <marker date="1573818637836" expanded="true" signature="34745:34794" ph="SELECT * FRO... dependant" />
+            <element signature="n#getDetails#0;n#System#0;n#!!top" expanded="false" />
+            <marker date="1573821274597" expanded="true" signature="12317:12366" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="12499:12545" ph="SELECT * FRO... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14548:14594" ph="SELECT COUNT... member_login" />
+            <marker date="1573821274597" expanded="true" signature="14728:14780" ph="SELECT `pin`... member_login" />
+            <marker date="1573821274597" expanded="true" signature="15226:15281" ph="UPDATE `memb... " />
+            <marker date="1573821274597" expanded="true" signature="17750:17802" ph="SELECT COUNT... members" />
+            <marker date="1573821274597" expanded="true" signature="18325:18559" ph="INSERT INTO `members`... " />
+            <marker date="1573821274597" expanded="true" signature="18878:18993" ph="INSERT INTO `member_details`... " />
+            <marker date="1573821274597" expanded="true" signature="19032:19184" ph="INSERT INTO `member_login`... " />
+            <marker date="1573821274597" expanded="true" signature="21407:21447" ph="SELECT * FRO... members" />
           </folding>
         </state>
       </provider>

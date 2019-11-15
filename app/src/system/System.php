@@ -95,7 +95,6 @@ class System
         $this->dept = $dept;
     }
 
-    pu
     /**
      * @param mixed $permission
      */
@@ -128,13 +127,6 @@ class System
         return $this->password;
     }
 
-    /**
-     * @param mixed $tkn
-     */
-    public function setTkn($tkn)
-    {
-        $this->tkn = $tkn;
-    }
 
     /**
      * @param mixed $id
@@ -493,13 +485,7 @@ class System
         $this->town = $town;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTkn()
-    {
-        return $this->tkn;
-    }
+
 
     /**
      * @return mixed
@@ -662,26 +648,26 @@ class System
 
     public function login(){
         try{
-            $u = $this->getMsisdn();
-            $sql = "SELECT COUNT(*) FROM `members` WHERE `msisdn` = '$u'";
+            $u = $this->getEmail();
+            $sql = "SELECT COUNT(*) FROM `users` WHERE `email` = '$u'";
 
             if ($res = $this->pdo->query($sql)) {
 
                 if ($res->fetchColumn() == 1) {
-                    $query = "SELECT * FROM `member_login` WHERE `msisdn`= :username";
+                    $query = "SELECT * FROM `users` WHERE `email`= :username";
                     $stmt = $this->pdo->prepare($query);
-                    $stmt->execute(array(':username' => $this->getMsisdn()));
+                    $stmt->execute(array(':username' => $this->getEmail()));
 
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    $hash = $row['pin'];
+                    $hash = $row['password'];
 
-                    if (password_verify($this->getPin(), $hash)) {
+                    if (password_verify($this->getPassword(), $hash)) {
                         $paylod = [
                             'iat' => time(),
                             'iss' => 'localhost',
                             'exp' => time() + (60*60*8),
-                            'userId' => $row['member_id']
+                            'userId' => $row['id']
                         ]; //expires in 8 hours
 
                         $token = JWT::encode($paylod, SECRETE_KEY);
@@ -708,36 +694,36 @@ class System
 
     public function changePassword(){
         try{
-            $payload = JWT::decode($this->getTkn(), SECRETE_KEY, ['HS256']);
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $id = $payload->userId;
-            $sql = "SELECT COUNT(*) FROM `member_login` WHERE `member_id`= '$id'";
+            $sql = "SELECT COUNT(*) FROM `users` WHERE `id`= '$id'";
 
             if ($res = $this->pdo->query($sql)) {
 
                 if ($res->fetchColumn() == 1) {
 
-                    $query = "SELECT `pin` FROM `member_login` WHERE `member_id`= :username";
+                    $query = "SELECT `password` FROM `users` WHERE `id`= :username";
                     $stmt = $this->pdo->prepare($query);
                     $stmt->execute(array(':username' => $id));
 
                     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    $hash = $row['pin'];
+                    $hash = $row['password'];
 
-                    if (password_verify($this->getPin(), $hash)) {
+                    if (password_verify($this->getPassword(), $hash)) {
 
-                        $pin = password_hash($this->getNewPin(), PASSWORD_BCRYPT, array("cost" => 10));
+                        $pwd = password_hash($this->getNewPassword(), PASSWORD_BCRYPT, array("cost" => 10));
 
-                        $sql = "UPDATE `member_login` SET `pin`= '$pin' WHERE `member_id`= '$id'";
+                        $sql = "UPDATE `users` SET `password`= '$pwd' WHERE `id`= '$id'";
                         $qr = mysqli_query($this->con, $sql);
                         if ($qr){
-                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Change PIN successful');
+                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Change Password successful');
                             return $data;
                         }else{
                             return array(
                                 'success' => false,
                                 'statusCode' => INTERNAL_SERVER_ERROR,
-                                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Change PIN failed")
+                                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Change Password failed")
                             );
                         }
 
@@ -745,7 +731,7 @@ class System
                         return array(
                             'success' => false,
                             'statusCode' => FORBIDEN,
-                            'error' => array('type' => 'LOGIN_ERROR', 'message' => "Invalid Pin")
+                            'error' => array('type' => 'LOGIN_ERROR', 'message' => "Invalid Password")
                         );
                     }
 
@@ -878,49 +864,28 @@ class System
     public function getDetails(){
 
         try{
-            $payload = JWT::decode($this->getTkn(), SECRETE_KEY, ['HS256']);
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $id = $payload->userId;
-            $sql = "SELECT * FROM `members` WHERE `id` = '$id'";
+            $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
             $qry = mysqli_query($this->con, $sql);
 
             if (mysqli_num_rows($qry) == 1){
                 $data = "";
                 while ($row = mysqli_fetch_assoc($qry)){
-                    $ssql = "SELECT  `membership_no`,`name`, `surname`, `national_ID`, `dob`, `gender` FROM `dependant` WHERE `member_id` = '$id'";
-                    $qqry = mysqli_query($this->con, $ssql);
-
-                    $dependant = array();
-                    while($dep = mysqli_fetch_assoc($qqry)){
-                        $dep = array(
-                            'name' => $dep['name'],
-                            'surname' => $dep['surname'],
-                            'membership-number' => $dep['membership_no'],
-                            'national-ID' => $dep['national_ID'],
-                            'D.O.B' => $dep['dob'],
-                            'gender' => $dep['gender']
-                        );
-
-                        array_push($dependant, $dep);
-                    }
-
 
                     $data = array(
                         'success' => true,
                         'statusCode' => SUCCESS_RESPONSE,
-                        'member' =>[
+                        'user' =>[
                             'name' => $row['name'],
                             'surname' => $row['surname'],
-                            'national-ID' => $row['id_number'],
-                            'membership-number' => $row['membership_no'],
-                            'D.O.B' => $row['dob'],
-                            'gender' => $row['gender'],
+                            'email' => $row['email'],
+                            'msisdn' => $row['msisdn'],
                             'address' => $row['address'],
                             'town' => $row['town'],
-                            'subscription' => $this->subscription($id),
-                            'dependants' => $dependant
+                            'profile' => $row['profile_image']
                         ]
                     );
-
 
                 }
 
@@ -933,313 +898,13 @@ class System
                 );
                 return $data;
             }
-        }catch (\Exception $exception){
-
-            return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $exception->getMessage())
-            );
-
-        }
-    }
-
-    public function subscribe(){
-
-        try{
-
-            $payment = $this->BillPayment();
-            $payload = JWT::decode($this->getBill(), SECRETE_KEY, ['HS256']);
-            $bill = $payload->bill;
-
-            if ($payment['success'] == true){
-
-                foreach($bill as $value){
-
-                    $starting = $value->start;
-                    $ending = $value->end;
-                    $billID = $value->id;
-                    $member = $value->userId;
-                    $ssql = "INSERT INTO `subscriptions`(`id`, `member_id`, `bill_id`, `start`, `end`) VALUES ('','$member','$billID','$starting','$ending')";
-                    $subscribe = mysqli_query($this->con, $ssql);
-
-                    if ($subscribe){
-                        return array(
-                            'success' => true,
-                            'statusCode' => SUCCESS_RESPONSE,
-                            'message' => 'Subscription successful'
-                        );
-                    }else{
-                        return  array(
-                            'success' => false,
-                            'statusCode' => INTERNAL_SERVER_ERROR,
-                            'ERROR' => array('type' => 'SERVER_ERROR', 'message' => 'Subscription failed: '.mysqli_error($this->con))
-                        );
-                    }
-
-                }
-
-
-            }else{
-                return $payment;
-            }
-
-        }catch (\Exception $exception){
-            return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $exception->getMessage())
-            );
-        }
-    }
-
-    public function subscription($member){
-
-        $sql = "SELECT * FROM `subscriptions` WHERE `member_id` = '$member' AND now() BETWEEN `start` AND `end`";
-        $qry = mysqli_query($this->con, $sql);
-        if (mysqli_num_rows($qry) == 0){
-            return false;
-        }else{
-            return true;
-        }
-    }
-
-    public function packages(){
-        try{
-            $sql = "SELECT * FROM `packages` WHERE 1";
-            $qry = mysqli_query($this->con, $sql);
-            if (mysqli_num_rows($qry) > 0){
-                $packages = array();
-                while($row = mysqli_fetch_assoc($qry)){
-                    $data = array('id' => $row['id'], 'name' => $row['name'], 'price' => $row['price']);
-                    array_push($packages, $data);
-                }
-                $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'packages' => $packages);
-                return $data;
-            }else{
-                $data = array('success' => false, 'statusCode' => SUCCESS_RESPONSE, 'error'=> array('type' => 'DATA_ERROR', 'message' =>"No Packages Found"));
-                return $data;
-            }
         }catch (\Exception $e){
-            $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => 'SERVER_ERROR', 'message' =>$e->getMessage()));
-            return $data;
-        }
-    }
-
-    public function subscriptionBill(){
-
-        $member = $this->getId();
-        $amount = $this->getAmount();
-        $sql = "INSERT INTO `payment`(`id`, `member_id`, `created`, `paid_on`, `expires`, `status`, `amount`, `method`, `confirmation`) VALUES ('','$member',now(),'0','','0','$amount','','')";
-        $insert = mysqli_query($this->con, $sql);
-        if ($insert){
-            return  array(
-                'success' => true,
-                'statusCode' => SUCCESS_RESPONSE,
-                'message' => 'Subscription bill created successfully'
-            );
-        }else{
             return array(
                 'success' => false,
                 'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'SERVER_ERROR', 'message' => 'Subscription Saving failed')
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
             );
         }
     }
 
-    public function BillPayment(){
-        try{
-            $payload = JWT::decode($this->getBill(), SECRETE_KEY, ['HS256']);
-            $bill = $payload->bill;
-            $method = $this->getMethod();
-            $confirmation = $this->getConfirmation();
-            $amount = $this->getAmount();
-
-            $csql = "INSERT INTO `payment_confirmation`(`id`, `comfirmation`, `amount`, `created`) VALUES ('','$confirmation','$amount',now())";
-            $cqry = mysqli_query($this->con, $csql);
-
-            if ($cqry){
-                $data = "";
-                foreach ($bill as $key){
-                    $id = $key->id;
-                    $confirID = mysqli_insert_id($this->con);
-                    $sql = "UPDATE `payment` SET `paid_on` = now(),`status`= '1', `amount` = '$amount', `method`='$method',`confirmation`= '$confirID' WHERE `id` = '$id'";
-                    $qry = mysqli_query($this->con, $sql);
-                    if ($qry){
-                        $data =   array(
-                            'success' => true,
-                            'statusCode' => SUCCESS_RESPONSE,
-                            'message' => 'Payment Successful'
-                        );
-                    }else{
-                        $data =  array(
-                            'success' => false,
-                            'statusCode' => INTERNAL_SERVER_ERROR,
-                            'error' => array(
-                                'type' => "SERVER_ERROR",
-                                'message' => 'Could not save payment. Error: '. mysqli_error($this->con)
-                            ));
-                    }
-                }
-
-                return $data;
-            }else{
-                return  array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array(
-                        'type' => "SERVER_ERROR",
-                        'message' => 'Could not save payment code. Error: ' .mysqli_error($this->con)
-                    ));
-            }
-
-
-        }catch (\Exception $e){
-            return  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => 'SERVER_ERROR',
-                    'message' => $e->getMessage()
-                )
-            );
-        }
-    }
-
-    public function getSubscriptionBill(){
-        try{
-            $payload = JWT::decode($this->getTkn(), SECRETE_KEY, ['HS256']);
-            $id = $payload->userId;
-            $total = 0;
-            $bills = array();
-            $sq = "SELECT * FROM `payment` WHERE `member_id` = '$id' AND `status` = '0'";
-            $qry = mysqli_query($this->con, $sq);
-            if (mysqli_num_rows($qry) > 0){
-                while ($row = mysqli_fetch_assoc($qry)){
-                    $total = $total + $row['amount'];
-                    $data = array(
-                        'id' => $row['id'],
-                        'amount' => $row['amount'],
-                        'due' => $row['created'],
-                        'start' => $row['created'],
-                        'end' => $row['expires'],
-                        'userId' => $id
-                    );
-
-                    array_push($bills, $data);
-                }
-
-                $paylod = [
-                    'iat' => time(),
-                    'iss' => 'localhost',
-                    'exp' => time() + (60*15),
-                    'bill' => $bills
-                ];
-
-                $token = JWT::encode($paylod, SECRETE_KEY);
-                return  array(
-                    'success' => true,
-                    'statusCode' => SUCCESS_RESPONSE,
-                    'total' => $total,
-                    'bill' => $token
-                );
-            }else{
-                return  array(
-                    'success' => false,
-                    'statusCode' => SUCCESS_RESPONSE,
-                    'error' => array(
-                        'type' => 'DATA_RESPONSE',
-                        'message' => 'No amounts due'
-                    )
-                );
-            }
-        }catch(\Exception $e){
-            return  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => "SERVER_ERROR",
-                    'message' => 'EXCEPTION: '.$e->getMessage()
-                ));
-        }
-    }
-
-    public function registrationInvoice($id){
-        $this->setId($id);
-        $memberTotal  = $this->memberInvoice($this->getId());
-        $dependantsTotal = $this->dependantInvoice($this->getId());
-        $total = $memberTotal + $dependantsTotal;
-
-        $this->creditSubscriptionInvoice($this->getId(), $total);
-    }
-    public function invoice(){
-
-        $msql = "SELECT * FROM `members`";
-        $mqry = mysqli_query($this->con, $msql);
-
-        while($row = mysqli_fetch_assoc($mqry)){
-
-            $this->setId($row['id']);
-            $memberTotal  = $this->memberInvoice($this->getId());
-            $dependantsTotal = $this->dependantInvoice($this->getId());
-            $total = $memberTotal + $dependantsTotal;
-
-            $this->creditSubscriptionInvoice($this->getId(), $total);
-            /*
-             * TO DO
-             * 1. Research on whether to save each dependants data along with each total
-             */
-        }
-    }
-
-    public function creditSubscriptionInvoice($id, $total){
-
-        $end = date("Y-m-t");
-        $sql = "INSERT INTO `payment`(`id`, `member_id`, `created`, `paid_on`, `expires`, `status`, `amount`, `method`, `confirmation`) VALUES ('','$id',now(),'0','$end','0','$total','','')";
-        $insert = mysqli_query($this->con, $sql);
-        /*
-         * create a logger here to log these actions for traceability and auditing
-         */
-
-    }
-
-    public function memberInvoice($id){
-        return $this->packagePrice($this->invoicePackage($id));
-    }
-
-    public function age($dob){
-        return date("Y-m-d") - date('Y-m-d', strtotime($dob));
-    }
-
-    public function invoicePackage($id){
-        $sql = "SELECT `package` FROM `member_details` WHERE `member_id` = '$id'";
-        $qry = mysqli_query($this->con, $sql);
-        $row = mysqli_fetch_assoc($qry);
-        return $row["package"];
-    }
-
-    public function packagePrice($id){
-        $sql = "SELECT `price` FROM `packages` WHERE `id` = '$id'";
-        $qry = mysqli_query($this->con, $sql);
-        $row = mysqli_fetch_assoc($qry);
-        return $row["price"];
-    }
-
-    public function dependantInvoice($id){
-
-        $sql = "SELECT * FROM `dependant` WHERE `member_id`='$id'";
-        $qry = mysqli_query($this->con, $sql);
-        $total = 0;
-        while($row = mysqli_fetch_assoc($qry)){
-
-            if ($this->age($row['dob']) < 18){
-                $total = $total + 0.5 * $this->packagePrice($this->invoicePackage($id));
-            }else{
-                $total = $total + $this->packagePrice($this->invoicePackage($id));
-            }
-
-        }
-
-        return $total;
-    }
 }

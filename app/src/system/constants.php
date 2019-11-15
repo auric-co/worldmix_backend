@@ -7,7 +7,7 @@
 	define('DB_USERNAME', 'root');
 	define('DB_PASSWORD', 'developer@@');
 	define('DB_HOST', 'localhost');
-	define('DB_NAME', 'velocity');
+	define('DB_NAME', 'worldmix');
 
 	/*Data Type*/
 	define('BOOLEAN', 	'1');
