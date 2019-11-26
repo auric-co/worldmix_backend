@@ -7,7 +7,6 @@
  * Time: 2:16 PM
  */
 include_once dirname(__FILE__) . '/Database.php';
-include_once dirname(__FILE__) . '/MembershipNumber.php';
 include_once dirname(__FILE__) . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -22,38 +21,48 @@ class System
     protected $newPassword;
     protected $name;
     protected $msisdn;
-    protected $permission;
     protected $lastName;
     protected $address;
     protected $town;
     protected $token;
     protected $category;
+    protected $subcategory1;
+    protected $subcategory2;
+    protected $subcategory3;
+    protected $location;
+    protected $brand;
+    protected $model;
     protected $desc;
     protected $price;
-    protected $nationID;
-    protected $dob;
-    protected $gender;
+    protected $price2;
     protected $id;
-    protected $amount;
-    protected $maritalStatus;
-    protected $package;
-    protected $method;
-    protected $starting;
-    protected $ending;
-    protected $confirmation;
-    protected $start;
-    protected $end;
-    protected $bill;
-    protected $dept;
+    protected $code;
     protected $mail;
+    protected $type;
+    protected $country;
+    protected $dateStart;
+    protected $deadline;
+    protected $bedrooms;
+    protected $jobLevel;
+    protected $jobQualification;
+    protected $vehicleFuel;
+    protected $vehicleTransmission;
+
+    /**
+     * @param mixed $code
+     */
+    public function setCode($code)
+    {
+        $this->code = $code;
+    }
+
     /**
      * @return mixed
      */
-    public function getDept()
+    public function getCode()
     {
-        return $this->dept;
+        return $this->code;
     }
-
 
     /**
      * @param mixed $token
@@ -70,6 +79,7 @@ class System
     {
         return $this->token;
     }
+
 
     /**
      * @return mixed
@@ -88,30 +98,6 @@ class System
     }
 
     /**
-     * @param mixed $dept
-     */
-    public function setDept($dept)
-    {
-        $this->dept = $dept;
-    }
-
-    /**
-     * @param mixed $permission
-     */
-    public function setPermission($permission)
-    {
-        $this->permission = $permission;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPermission()
-    {
-        return $this->permission;
-    }
-
-    /**
      * @param mixed $password
      */
     public function setPassword($password)
@@ -127,6 +113,116 @@ class System
         return $this->password;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getBrand()
+    {
+        return $this->brand;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param mixed $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+    /**
+     * @return mixed
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSubcategory1()
+    {
+        return $this->subcategory1;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSubcategory2()
+    {
+        return $this->subcategory2;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSubcategory3()
+    {
+        return $this->subcategory3;
+    }
+
+    /**
+     * @param mixed $brand
+     */
+    public function setBrand($brand)
+    {
+        $this->brand = $brand;
+    }
+
+    /**
+     * @param mixed $location
+     */
+    public function setLocation($location)
+    {
+        $this->location = $location;
+    }
+
+    /**
+     * @param mixed $model
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
+
+    /**
+     * @param mixed $subcategory1
+     */
+    public function setSubcategory1($subcategory1)
+    {
+        $this->subcategory1 = $subcategory1;
+    }
+
+    /**
+     * @param mixed $subcategory3
+     */
+    public function setSubcategory3($subcategory3)
+    {
+        $this->subcategory3 = $subcategory3;
+    }
+
+    /**
+     * @param mixed $subcategory2
+     */
+    public function setSubcategory2($subcategory2)
+    {
+        $this->subcategory2 = $subcategory2;
+    }
 
     /**
      * @param mixed $id
@@ -155,26 +251,11 @@ class System
     /**
      * @return mixed
      */
-    public function getBill()
-    {
-        return $this->bill;
-    }
-
-    /**
-     * @return mixed
-     */
     public function getCategory()
     {
         return $this->category;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getConfirmation()
-    {
-        return $this->confirmation;
-    }
 
     /**
      * @return mixed
@@ -195,17 +276,33 @@ class System
     /**
      * @return mixed
      */
-    public function getEnd()
+    public function getPrice2()
     {
-        return $this->end;
+        return $this->price2;
+    }
+
+    /**
+     * @param mixed $price2
+     */
+    public function setPrice2($price2)
+    {
+        $this->price2 = $price2;
     }
 
     /**
      * @return mixed
      */
-    public function getEnding()
+    public function getDeadline()
     {
-        return $this->ending;
+        return $this->deadline;
+    }
+
+    /**
+     * @param mixed $deadline
+     */
+    public function setDeadline($deadline)
+    {
+        $this->deadline = $deadline;
     }
 
     /**
@@ -227,33 +324,6 @@ class System
     /**
      * @return mixed
      */
-    public function getMaritalStatus()
-    {
-        return $this->maritalStatus;
-    }
-
-    /**
-     * @param mixed $maritalStatus
-     */
-    public function setMaritalStatus($maritalStatus)
-    {
-        $this->maritalStatus = $maritalStatus;
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
-
-
-
-    /**
-     * @return mixed
-     */
     public function getMsisdn()
     {
         return $this->msisdn;
@@ -267,23 +337,6 @@ class System
         return $this->name;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNationID()
-    {
-        return $this->nationID;
-    }
-
-
-
-    /**
-     * @return mixed
-     */
-    public function getPackage()
-    {
-        return $this->package;
-    }
 
 
 
@@ -295,21 +348,6 @@ class System
         return $this->price;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getStart()
-    {
-        return $this->start;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getStarting()
-    {
-        return $this->starting;
-    }
 
     /**
      * @param mixed $address
@@ -320,11 +358,19 @@ class System
     }
 
     /**
-     * @param mixed $amount
+     * @return mixed
      */
-    public function setAmount($amount)
+    public function getVehicleTransmission()
     {
-        $this->amount = $amount;
+        return $this->vehicleTransmission;
+    }
+
+    /**
+     * @param mixed $vehicleTransmission
+     */
+    public function setVehicleTransmission($vehicleTransmission)
+    {
+        $this->vehicleTransmission = $vehicleTransmission;
     }
 
     /**
@@ -335,13 +381,6 @@ class System
         return $this->town;
     }
 
-    /**
-     * @param mixed $bill
-     */
-    public function setBill($bill)
-    {
-        $this->bill = $bill;
-    }
 
     /**
      * @param mixed $category
@@ -351,13 +390,6 @@ class System
         $this->category = $category;
     }
 
-    /**
-     * @param mixed $confirmation
-     */
-    public function setConfirmation($confirmation)
-    {
-        $this->confirmation = $confirmation;
-    }
 
     /**
      * @param mixed $desc
@@ -375,29 +407,6 @@ class System
         $this->dob = $dob;
     }
 
-    /**
-     * @param mixed $end
-     */
-    public function setEnd($end)
-    {
-        $this->end = $end;
-    }
-
-    /**
-     * @param mixed $ending
-     */
-    public function setEnding($ending)
-    {
-        $this->ending = $ending;
-    }
-
-    /**
-     * @param mixed $gender
-     */
-    public function setGender($gender)
-    {
-        $this->gender = $gender;
-    }
 
     /**
      * @param mixed $lastName
@@ -406,18 +415,6 @@ class System
     {
         $this->lastName = $lastName;
     }
-
-
-
-    /**
-     * @param mixed $method
-     */
-    public function setMethod($method)
-    {
-        $this->method = $method;
-    }
-
-
 
     /**
      * @param mixed $msisdn
@@ -436,24 +433,6 @@ class System
     }
 
     /**
-     * @param mixed $nationID
-     */
-    public function setNationID($nationID)
-    {
-        $this->nationID = $nationID;
-    }
-
-
-    /**
-     * @param mixed $package
-     */
-    public function setPackage($package)
-    {
-        $this->package = $package;
-    }
-
-
-    /**
      * @param mixed $price
      */
     public function setPrice($price)
@@ -461,21 +440,6 @@ class System
         $this->price = $price;
     }
 
-    /**
-     * @param mixed $start
-     */
-    public function setStart($start)
-    {
-        $this->start = $start;
-    }
-
-    /**
-     * @param mixed $starting
-     */
-    public function setStarting($starting)
-    {
-        $this->starting = $starting;
-    }
 
     /**
      * @param mixed $town
@@ -485,7 +449,37 @@ class System
         $this->town = $town;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getJobLevel()
+    {
+        return $this->jobLevel;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getJobQualification()
+    {
+        return $this->jobQualification;
+    }
+
+    /**
+     * @param mixed $jobQualification
+     */
+    public function setJobQualification($jobQualification)
+    {
+        $this->jobQualification = $jobQualification;
+    }
+
+    /**
+     * @param mixed $jobLevel
+     */
+    public function setJobLevel($jobLevel)
+    {
+        $this->jobLevel = $jobLevel;
+    }
 
     /**
      * @return mixed
@@ -511,11 +505,74 @@ class System
         return $this->address;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getBedrooms()
+    {
+        return $this->bedrooms;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDateStart()
+    {
+        return $this->dateStart;
+    }
+
+    /**
+     * @param mixed $bedrooms
+     */
+    public function setBedrooms($bedrooms)
+    {
+        $this->bedrooms = $bedrooms;
+    }
+
+    /**
+     * @param mixed $country
+     */
+    public function setCountry($country)
+    {
+        $this->country = $country;
+    }
+
+    /**
+     * @param mixed $dateStart
+     */
+    public function setDateStart($dateStart)
+    {
+        $this->dateStart = $dateStart;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVehicleFuel()
+    {
+        return $this->vehicleFuel;
+    }
+
+    /**
+     * @param mixed $vehicleFuel
+     */
+    public function setVehicleFuel($vehicleFuel)
+    {
+        $this->vehicleFuel = $vehicleFuel;
+    }
     public function __construct()
     {
         $this->mail = new PHPMailer();
         $this->mail->SMTPAuth = true;
-        $this->mail->Username = "admin@ultramedhealth.com";
+        $this->mail->Username = "noreply@worldmixapp.com";
         $this->mail->Password = "";
         $this->mail->SMTPSecure = "TLS"; //ssl
         $this->mail->Port = 587; //465
@@ -646,263 +703,96 @@ class System
         return substr(str_shuffle($string), 0, $len);
     }
 
-    public function login(){
-        try{
-            $u = $this->getEmail();
-            $sql = "SELECT COUNT(*) FROM `users` WHERE `email` = '$u'";
+    public function Categories(){
+        $sql = "SELECT * FROM `categories` WHERE 1";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) < 0){
 
-            if ($res = $this->pdo->query($sql)) {
-
-                if ($res->fetchColumn() == 1) {
-                    $query = "SELECT * FROM `users` WHERE `email`= :username";
-                    $stmt = $this->pdo->prepare($query);
-                    $stmt->execute(array(':username' => $this->getEmail()));
-
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    $hash = $row['password'];
-
-                    if (password_verify($this->getPassword(), $hash)) {
-                        $paylod = [
-                            'iat' => time(),
-                            'iss' => 'localhost',
-                            'exp' => time() + (60*60*8),
-                            'userId' => $row['id']
-                        ]; //expires in 8 hours
-
-                        $token = JWT::encode($paylod, SECRETE_KEY);
-                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Login successful','token'=>$token);
-                        return $data;
-
-                    } else {
-                        $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Invalid Login Credentials'));
-                        return $data;
-                    }
-                }else {
-                    $data = array('success' => false, 'statusCode' => NOT_FOUND, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account not found'));
-                    return $data;
-                }
-            }else{
-                $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => 'Internal Server Error'));
-                return $data;
-            }
-        }catch (\Exception $e){
-            $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => $e->getMessage()));
-            return $data;
-        }
-    }
-
-    public function changePassword(){
-        try{
-            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
-            $id = $payload->userId;
-            $sql = "SELECT COUNT(*) FROM `users` WHERE `id`= '$id'";
-
-            if ($res = $this->pdo->query($sql)) {
-
-                if ($res->fetchColumn() == 1) {
-
-                    $query = "SELECT `password` FROM `users` WHERE `id`= :username";
-                    $stmt = $this->pdo->prepare($query);
-                    $stmt->execute(array(':username' => $id));
-
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    $hash = $row['password'];
-
-                    if (password_verify($this->getPassword(), $hash)) {
-
-                        $pwd = password_hash($this->getNewPassword(), PASSWORD_BCRYPT, array("cost" => 10));
-
-                        $sql = "UPDATE `users` SET `password`= '$pwd' WHERE `id`= '$id'";
-                        $qr = mysqli_query($this->con, $sql);
-                        if ($qr){
-                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Change Password successful');
-                            return $data;
-                        }else{
-                            return array(
-                                'success' => false,
-                                'statusCode' => INTERNAL_SERVER_ERROR,
-                                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Change Password failed")
-                            );
-                        }
-
-                    }else{
-                        return array(
-                            'success' => false,
-                            'statusCode' => FORBIDEN,
-                            'error' => array('type' => 'LOGIN_ERROR', 'message' => "Invalid Password")
-                        );
-                    }
-
-                }else{
-                    return array(
-                        'success' => false,
-                        'statusCode' => INTERNAL_SERVER_ERROR,
-                        'error' => array('type' => 'ACOUNT_ERROR', 'message' => "Damaged account")
-                    );
-                }
-            }else{
-                return array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Internal Server Error")
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description'],
+                    'icon' => $row['icon']
                 );
+
+                array_push($cat, $ct);
             }
 
-        }catch (\Exception $e){
             return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'categories' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Categories found'
             );
         }
     }
 
-    public function Register(){
+    public function listingType(){
+        $sql = "SELECT * FROM `listing_type` WHERE 1";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) < 0){
 
-        $u = $this->getMsisdn();
-        $ID = $this->getNationID();
-        $name = $this->getName();
-        $sname = $this->getLastName();
-        $sex = $this->getGender();
-        $dob = $this->getDob();
-        $town = $this->getTown();
-        $address = $this->getAddress();
-        $package = $this->getPackage();
-
-        $member = new MembershipNumber();
-        $member->setCity($town);
-        $mb = $member->number();
-        $mib = $mb['number'];
-
-
-
-        $pin = password_hash($this->getPin(), PASSWORD_BCRYPT, array("cost" => 10));
-
-        try{
-
-            $check = "SELECT COUNT(*) FROM `members` WHERE `msisdn` = '$u'";
-
-            if ($res = $this->pdo->query($check)) {
-
-                if ($res->fetchColumn() !=0) {
-                    $data = array(
-                        'success' => false,
-                        'statusCode' => INTERNAL_SERVER_ERROR,
-                        'error' => array(
-                            'type' => "SERVER_ERROR",
-                            'message' => 'User MSISDN already exists')
-                    );
-
-                    return $data;
-                }else {
-                    $sql = "INSERT INTO `members`(`id`, `name`, `surname`, `id_number`, `membership_no`, `dob`, `gender`, `msisdn`, `address`, `town`, `created`, `updated`) VALUES ('','$name','$sname','$ID','$mib','$dob','$sex','$u','$address', '$town',now(),'')";
-                    $insert = mysqli_query($this->con, $sql);
-                    if ($insert){
-                        $id = mysqli_insert_id($this->con);
-                        $this->registrationInvoice($id);
-                        $member->update($mb['province'], $mb['id']);
-
-                        $msql = "INSERT INTO `member_details`(`id`, `member_id`, `package`, `subscription_status`) VALUES ('','$id','$package', '0');";
-
-                        $msql .= "INSERT INTO `member_login`(`id`, `member_id`, `msisdn`, `pin`, `password`, `status`, `created`, `updated`) VALUES ('','$id','$u','$pin','','0',now(),'')";
-                        $details = mysqli_query($this->con, $msql);
-                        if ($details){
-                            $data = array('success' => true, 'statusCode' => CREATED, 'message'=> 'Account created successfully');
-                            return $data;
-                        }else{
-                            $data = array(
-                                'success' => false,
-                                'statusCode' => INTERNAL_SERVER_ERROR,
-                                'error' => array(
-                                    'type' => "SERVER_ERROR",
-                                    'message' => 'Account creation not complete. Error: '. mysqli_error($this->con))
-                            );
-
-                            return $data;
-                        }
-                    }else{
-                        $data = array(
-                            'success' => false,
-                            'statusCode' => INTERNAL_SERVER_ERROR,
-                            'error' => array(
-                                'type' => "SERVER_ERROR",
-                                'message' => 'Account creation failed. Error: '. mysqli_error($this->con))
-                        );
-
-                        return $data;
-                    }
-                }
-            }else {
-                $data = array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array(
-                        'type' => "SERVER_ERROR",
-                        'message' => 'Internal Server Error')
+            $type = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description']
                 );
 
-                return $data;
+                array_push($type, $ct);
             }
 
-        }catch (\Exception $exception){
-            $data = array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => "SERVER_ERROR",
-                    'message' => 'Error: '.$exception->getMessage())
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'type' => $type
             );
-
-            return $data;
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Listing Types found'
+            );
         }
-
-
     }
 
-    public function getDetails(){
+    public function requestType(){
+        $sql = "SELECT * FROM `request_type` WHERE 1";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) < 0){
 
-        try{
-            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
-            $id = $payload->userId;
-            $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
-            $qry = mysqli_query($this->con, $sql);
-
-            if (mysqli_num_rows($qry) == 1){
-                $data = "";
-                while ($row = mysqli_fetch_assoc($qry)){
-
-                    $data = array(
-                        'success' => true,
-                        'statusCode' => SUCCESS_RESPONSE,
-                        'user' =>[
-                            'name' => $row['name'],
-                            'surname' => $row['surname'],
-                            'email' => $row['email'],
-                            'msisdn' => $row['msisdn'],
-                            'address' => $row['address'],
-                            'town' => $row['town'],
-                            'profile' => $row['profile_image']
-                        ]
-                    );
-
-                }
-
-                return $data;
-            }else{
-                $data =  array(
-                    'success' => false,
-                    'statusCode' => SUCCESS_RESPONSE,
-                    'error' => array('type' => 'DATA_ERROR', 'message' => 'No data found')
+            $type = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description']
                 );
-                return $data;
+
+                array_push($type, $ct);
             }
-        }catch (\Exception $e){
+
             return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'type' => $type
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Request Types found'
             );
         }
     }

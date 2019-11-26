@@ -3,7 +3,7 @@ return [
     'settings' => [
         // Slim Settings
         'determineRouteBeforeAppMiddleware' => true,
-        'displayErrorDetails' => false,
+        'displayErrorDetails' => true,
 
         // View settings
         'view' => [
