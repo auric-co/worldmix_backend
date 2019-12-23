@@ -23,7 +23,8 @@ class Database
             print_r(json_encode(array("error"=> array('type' => 'DATABASE ERROR', 'message' => $e->getMessage()))));
             exit();
         }
-    }
+    } 
+	
 
 
     public function mysqli()

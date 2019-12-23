@@ -7,9 +7,13 @@
  * Time: 11:19 PM
  */
 include_once dirname(__FILE__) . '/vendor/autoload.php';
+include_once dirname(__FILE__) . '/SMS.php';
 use Firebase\JWT\JWT;
 class User extends System
 {
+
+
+
     function repost(){
 
     }
@@ -21,339 +25,12 @@ class User extends System
     function checkLogin(){
 
     }
+    function sendRegText($code){
+        $sms = new SMS();
+        $sms->setTo($this->getMsisdn());
+        $sms->setMessage($this->getDetails());
 
-    public function login(){
-        try{
-            $u = $this->getMsisdn();
-            $sql = "SELECT COUNT(*) FROM `users` WHERE `msisdn` = '$u'";
-
-            if ($res = $this->pdo->query($sql)) {
-
-                if ($res->fetchColumn() == 1) {
-                    $query = "SELECT * FROM `users` WHERE `msisdn`= :username";
-                    $stmt = $this->pdo->prepare($query);
-                    $stmt->execute(array(':username' => $this->getMsisdn()));
-
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    $hash = $row['password'];
-
-                    if (password_verify($this->getPassword(), $hash)) {
-
-
-                        if ($row['status'] == 0){
-
-                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account has not been updated. Please visit your email to activate your account'));
-                            return $data;
-                        }elseif ($row['status'] == 1) {
-                            $paylod = [
-                                'iat' => time(),
-                                'iss' => $this->domain(),
-                                'exp' => time() + (60*60*8),
-                                'userId' => $row['id']
-                            ]; //expires in 8 hours
-
-                            $token = JWT::encode($paylod, SECRETE_KEY);
-                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message' => 'Login successful', 'token' => $token);
-                            return $data;
-                        }elseif ($row['status'] == 2){
-                            //suspended
-                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account Suspended'));
-                            return $data;
-                        }else{
-                            //blacklisted
-                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account Blacklisted'));
-                            return $data;
-                        }
-                    } else {
-                        $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Invalid Login Credentials'));
-                        return $data;
-                    }
-                }else {
-                    $data = array('success' => false, 'statusCode' => NOT_FOUND, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account not found'));
-                    return $data;
-                }
-            }else{
-                $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => 'Internal Server Error'));
-                return $data;
-            }
-        }catch (\Exception $e){
-            $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => $e->getMessage()));
-            return $data;
-        }
-    }
-
-    public function changePassword(){
-        try{
-            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
-            $id = $payload->userId;
-            $sql = "SELECT COUNT(*) FROM `users` WHERE `id`= '$id'";
-
-            if ($res = $this->pdo->query($sql)) {
-
-                if ($res->fetchColumn() == 1) {
-
-                    $query = "SELECT `password` FROM `users` WHERE `id`= :username";
-                    $stmt = $this->pdo->prepare($query);
-                    $stmt->execute(array(':username' => $id));
-
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                    $hash = $row['password'];
-
-                    if (password_verify($this->getPassword(), $hash)) {
-
-                        $pwd = password_hash($this->getNewPassword(), PASSWORD_BCRYPT, array("cost" => 10));
-
-                        $sql = "UPDATE `users` SET `password`= '$pwd' WHERE `id`= '$id'";
-                        $qr = mysqli_query($this->con, $sql);
-                        if ($qr){
-                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Change Password successful');
-                            return $data;
-                        }else{
-                            return array(
-                                'success' => false,
-                                'statusCode' => INTERNAL_SERVER_ERROR,
-                                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Change Password failed")
-                            );
-                        }
-
-                    }else{
-                        return array(
-                            'success' => false,
-                            'statusCode' => FORBIDEN,
-                            'error' => array('type' => 'LOGIN_ERROR', 'message' => "Invalid Password")
-                        );
-                    }
-
-                }else{
-                    return array(
-                        'success' => false,
-                        'statusCode' => INTERNAL_SERVER_ERROR,
-                        'error' => array('type' => 'ACOUNT_ERROR', 'message' => "Damaged account")
-                    );
-                }
-            }else{
-                return array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Internal Server Error")
-                );
-            }
-
-        }catch (\Exception $e){
-            return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
-            );
-        }
-    }
-
-    public function Register(){
-
-        $u = $this->getMsisdn();
-        $name = $this->getName();
-        $sname = $this->getLastName();
-
-        $pwd = password_hash($this->getPassword(), PASSWORD_BCRYPT, array("cost" => 10));
-
-        try{
-
-            $check = "SELECT COUNT(*) FROM `users` WHERE `msisdn` = '$u'";
-
-            if ($res = $this->pdo->query($check)) {
-
-                if ($res->fetchColumn() !=0) {
-                    $data = array(
-                        'success' => false,
-                        'statusCode' => INTERNAL_SERVER_ERROR,
-                        'error' => array(
-                            'type' => "SERVER_ERROR",
-                            'message' => 'User email already exists')
-                    );
-
-                    return $data;
-                }else {
-                    $code = rand(1000, 9999);
-
-                    $sql = "INSERT INTO `users`(`id`, `email`, `password`, `name`, `surname`, `msisdn`, `town`, `address`, `profile_image`,`token`, `status`) VALUES ('','','$pwd','$name','$sname','$u','','','','$code','0')";
-                    $insert = mysqli_query($this->con, $sql);
-                    if ($insert){
-                        if($this->sendRegText($code)){
-                            $data = array('success' => true, 'statusCode' => CREATED, 'message'=> 'Account created successfully. Please activate your account');
-                            return $data;
-                        }else{
-                            $data = array('success' => true, 'statusCode' => CREATED, 'message'=> 'Account created successfully. Please contact admin to activate your account');
-                            return $data;
-                        }
-
-                    }else{
-                        $data = array(
-                            'success' => false,
-                            'statusCode' => INTERNAL_SERVER_ERROR,
-                            'error' => array(
-                                'type' => "SERVER_ERROR",
-                                'message' => 'Account creation failed. Error: '. mysqli_error($this->con))
-                        );
-
-                        return $data;
-                    }
-                }
-            }else {
-                $data = array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array(
-                        'type' => "SERVER_ERROR",
-                        'message' => 'Internal Server Error')
-                );
-
-                return $data;
-            }
-
-        }catch (\Exception $exception){
-            $data = array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => "SERVER_ERROR",
-                    'message' => 'Error: '.$exception->getMessage())
-            );
-
-            return $data;
-        }
-
-
-    }
-
-    public  function activateAccount(){
-        $code = $this->getCode();
-        $u = $this->getEmail();
-
-        $sql = "UPDATE `users` SET `status`= '1' WHERE `token` ='$code' AND `email` = '$u'";
-        $qry = mysqli_query($this->con, $sql);
-
-        if ($qry){
-            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Account activated successfully.');
-            return $data;
-        }else{
-            $data = array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => "SERVER_ERROR",
-                    'message' => 'Account activation failed. Error: '. mysqli_error($this->con))
-            );
-
-            return $data;
-        }
-    }
-
-    public function getActivationCode(){
-        $email = $this->getEmail();
-        $code = rand(1000, 9999);
-        $check = "SELECT COUNT(*) FROM `users` WHERE `email` = '$email' AND `status` = '0'";
-
-        if ($res = $this->pdo->query($check)) {
-
-            if ($res->fetchColumn() == 1) {
-                $sql = "UPDATE `users` SET `code` = '$code' WHERE `email` = '$email' AND `status` = '0'";
-                $qry = mysqli_query($this->con, $sql);
-                if ($qry){
-
-                    if($this->sendRegEmail($code)){
-                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Code has been emailed to you');
-                        return $data;
-                    }else{
-                        return  array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'code'=> $code, 'message' => 'Code has been updated, however email could not be sent. Please contact admin');
-                    }
-
-                }else{
-                    return array(
-                        'success' => false,
-                        'statusCode' => INTERNAL_SERVER_ERROR,
-                        'error' => array(
-                            'type' => "SERVER_ERROR",
-                            'message' => 'Code could not be retrieved. Internal Server error')
-                    );
-                }
-            }elseif ($res->fetchColumn() == 0){
-                return array(
-                    'success' => false,
-                    'statusCode' => NOT_FOUND,
-                    'error' => array(
-                        'type' => "SERVER_ERROR",
-                        'message' => 'Account not found.')
-                );
-            }else{
-                return array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array(
-                        'type' => "SERVER_ERROR",
-                        'message' => 'Code could be retrieved.')
-                );
-
-            }
-        }else{
-            return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array(
-                    'type' => "SERVER_ERROR",
-                    'message' => 'Internal Server error')
-            );
-
-        }
-
-    }
-
-    public function getDetails(){
-
-        try{
-            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
-            $id = $payload->userId;
-            $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
-            $qry = mysqli_query($this->con, $sql);
-
-            if (mysqli_num_rows($qry) == 1){
-                $data = "";
-                while ($row = mysqli_fetch_assoc($qry)){
-
-                    $data = array(
-                        'success' => true,
-                        'statusCode' => SUCCESS_RESPONSE,
-                        'user' =>[
-                            'name' => $row['name'],
-                            'surname' => $row['surname'],
-                            'email' => $row['email'],
-                            'msisdn' => $row['msisdn'],
-                            'address' => $row['address'],
-                            'town' => $row['town'],
-                            'profile' => $row['profile_image'],
-                            'status' => $row['status']
-                        ]
-                    );
-
-                }
-
-                return $data;
-            }else{
-                $data =  array(
-                    'success' => false,
-                    'statusCode' => SUCCESS_RESPONSE,
-                    'error' => array('type' => 'DATA_ERROR', 'message' => 'No data found')
-                );
-                return $data;
-            }
-        }catch (\Exception $e){
-            return array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
-            );
-        }
+        return $sms->send();
     }
 
     function sendRegEmail($code){
@@ -559,30 +236,351 @@ class User extends System
         }
     }
 
-    function sendRegText($code){
-        /*try{
-            $client = "";
-            $client->number = "";
-            $client->username = "";
-            $client->key = "";
-            $sid = "AC2a1c0cff95aaab261adaad6596693de3"; // Your Account SID from www.twilio.com/console
-            $token = "8f2c8e73562c87dabb8be159e8a58ccb"; // Your Auth Token from www.twilio.com/console
-            $client = new Twilio\Rest\Client($sid, $token);
+    public function login(){
+        try{
+            $u = $this->getMsisdn();
+            $sql = "SELECT COUNT(*) FROM `users` WHERE `msisdn` = '$u'";
 
-            $message = $client->messages->create(
-                '+' . $this->getMsisdn(), // Text this number
-                array(
-                    'from' => '+18504629824', // From a valid Twilio number
-                    'body' => 'Hey there. welcome to worldmix. you activation code is ' . $code
-                )
+            if ($res = $this->pdo->query($sql)) {
+
+                if ($res->fetchColumn() == 1) {
+                    $query = "SELECT * FROM `users` WHERE `msisdn`= :username";
+                    $stmt = $this->pdo->prepare($query);
+                    $stmt->execute(array(':username' => $this->getMsisdn()));
+
+
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    $hash = $row['password'];
+
+                    if (password_verify($this->getPassword(), $hash)) {
+
+
+                        if ($row['status'] == 0){
+
+                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account  not  updated'));
+                            return $data;
+                        }elseif ($row['status'] == 1) {
+                            $paylod = [
+                                'iat' => time(),
+                                'iss' => $this->domain(),
+                                'exp' => time() + (60*60*8),
+                                'userId' => $row['id']
+                            ]; //expires in 8 hours
+                            $details = array(
+                                'user' => [
+                                    'name' => $row['name'],
+                                    'surname' => $row['surname'],
+                                    'email' => $row['email'],
+                                    'msisdn' => $row['msisdn'],
+                                    'address' => $row['address'],
+                                    'town' => $row['town'],
+                                    'country'=> $row['country'],
+                                    'profile' => $row['profile_image'],
+                                    'status' => $row['status']
+                                ]
+                            );
+
+                            $token = JWT::encode($paylod, SECRETE_KEY);
+                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message' => 'Login successful', 'token' => $token, 'details' => $details);
+                            return $data;
+                        }elseif ($row['status'] == 2){
+                            //suspended
+                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account Suspended'));
+                            return $data;
+                        }else{
+                            //blacklisted
+                            $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account Blacklisted'));
+                            return $data;
+                        }
+                    } else {
+                        $data = array('success' => false, 'statusCode' => UNAUTHORISED, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Invalid Login Credentials'));
+                        return $data;
+                    }
+                }else {
+                    $data = array('success' => false, 'statusCode' => NOT_FOUND, 'error'=> array('type' => "LOGIN_ERROR", 'message' => 'Account not found'));
+                    return $data;
+                }
+            }else{
+                $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => 'Internal Server Error'));
+                return $data;
+            }
+        }catch (\Exception $e){
+            $data = array('success' => false, 'statusCode' => INTERNAL_SERVER_ERROR, 'error'=> array('type' => "SERVER_ERROR", 'message' => $e->getMessage()));
+            return $data;
+        }
+    }
+
+    public function changePassword(){
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $id = $payload->userId;
+            $sql = "SELECT COUNT(*) FROM `users` WHERE `id`= '$id'";
+
+            if ($res = $this->pdo->query($sql)) {
+
+                if ($res->fetchColumn() == 1) {
+
+                    $query = "SELECT `password` FROM `users` WHERE `id`= :username";
+                    $stmt = $this->pdo->prepare($query);
+                    $stmt->execute(array(':username' => $id));
+
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    $hash = $row['password'];
+
+                    if (password_verify($this->getPassword(), $hash)) {
+
+                        $pwd = password_hash($this->getNewPassword(), PASSWORD_BCRYPT, array("cost" => 10));
+
+                        $sql = "UPDATE `users` SET `password`= '$pwd' WHERE `id`= '$id'";
+                        $qr = mysqli_query($this->con, $sql);
+                        if ($qr){
+                            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Change Password successful');
+                            return $data;
+                        }else{
+                            return array(
+                                'success' => false,
+                                'statusCode' => INTERNAL_SERVER_ERROR,
+                                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Change Password failed")
+                            );
+                        }
+
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => FORBIDEN,
+                            'error' => array('type' => 'LOGIN_ERROR', 'message' => "Invalid Password")
+                        );
+                    }
+
+                }else{
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array('type' => 'ACOUNT_ERROR', 'message' => "Damaged account")
+                    );
+                }
+            }else{
+                return array(
+                    'success' => false,
+                    'statusCode' => INTERNAL_SERVER_ERROR,
+                    'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Internal Server Error")
+                );
+            }
+
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
             );
-            $cl = new RestClient("MANZVKOGE4ZWRLMJG3YT", "ZmFmYWRmYTVlOTJhNGViY2I1MjM1Mjk1ZWE5NTU0");
+        }
+    }
 
-            $message_created = $cl->messages->create('WORLDMIX', ['+' . $this->getMsisdn()], 'Hey there. welcome to worldmix. you activation code is ' . $code);
+    public function Register(){
 
-        }catch (\Twilio\Exceptions\ConfigurationException $e){
+        $u = $this->getMsisdn();
+        $name = $this->getName();
+        $sname = $this->getLastName();
+        $ccode = $this->getCountryCode();
+        $country = $this->getCountry();
+        $pwd = password_hash($this->getPassword(), PASSWORD_BCRYPT, array("cost" => 10));
 
-        } */
+        try{
+
+            $check = "SELECT COUNT(*) FROM `users` WHERE `msisdn` = '$u'";
+
+            if ($res = $this->pdo->query($check)) {
+
+                if ($res->fetchColumn() !=0) {
+                    $data = array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Mobile number already exists')
+                    );
+
+                    return $data;
+                }else {
+                    $code = rand(1000, 9999);
+                    $sql = "INSERT INTO `users`(`id`, `email`, `password`, `name`, `surname`, `msisdn`, `town`, `country_code`, `country`, `address`, `profile_image`, `token`, `status`) VALUES ('','','$pwd','$name','$name','$u','','$ccode','$country','','','$code','0')";
+                    $insert = mysqli_query($this->con, $sql);
+                    if ($insert){
+                        $message = "Thank you for registering with WorldMix. Here is your activation code: ".$code;
+                        $this->sms->setMessage($message);
+                        $this->sms->setTo($u);
+                        $sent = $this->sms->send();
+                        $data = array('success' => true, 'statusCode' => CREATED, 'message'=> 'Account created successfully. Please activate your account', 'sms'=> $sent);
+                        return $data;
+
+                    }else{
+                        $data = array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array(
+                                'type' => "SERVER_ERROR",
+                                'message' => 'Account creation failed. Error: '. mysqli_error($this->con))
+                        );
+
+                        return $data;
+                    }
+                }
+            }else {
+                $data = array(
+                    'success' => false,
+                    'statusCode' => INTERNAL_SERVER_ERROR,
+                    'error' => array(
+                        'type' => "SERVER_ERROR",
+                        'message' => 'Internal Server Error')
+                );
+
+                return $data;
+            }
+
+        }catch (\Exception $exception){
+            $data = array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Error: '.$exception->getMessage())
+            );
+
+            return $data;
+        }
+
+
+    }
+
+    public  function activateAccount(){
+        $code = $this->getCode();
+        $u = $this->getMsisdn();
+
+        $sql = "UPDATE `users` SET `status`= '1' WHERE `token` ='$code' AND `msisdn` = '$u'";
+        $qry = mysqli_query($this->con, $sql);
+
+        if ($qry){
+            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Account activated successfully.');
+            return $data;
+        }else{
+            $data = array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Account activation failed. Error: '. mysqli_error($this->con))
+            );
+
+            return $data;
+        }
+    }
+
+    public function getActivationCode(){
+        $user = $this->getMsisdn();
+        $code = rand(1000, 9999);
+        $check = "SELECT COUNT(*) FROM `users` WHERE `msisdn` = '$user' AND `status` = '0'";
+
+        if ($res = $this->pdo->query($check)) {
+
+            if ($res->fetchColumn() == 1) {
+                $sql = "UPDATE `users` SET `code` = '$code' WHERE `msisdn` = '$user' AND `status` = '0'";
+                $qry = mysqli_query($this->con, $sql);
+                if ($qry){
+
+                    if($this->sendRegEmail($code)){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Code has been sent');
+                        return $data;
+                    }else{
+                        return  array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'code'=> $code, 'message' => 'Code has been updated, however text could not be sent. Please contact admin');
+                    }
+
+                }else{
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Code could not be retrieved. Internal Server error')
+                    );
+                }
+            }elseif ($res->fetchColumn() == 0){
+                return array(
+                    'success' => false,
+                    'statusCode' => NOT_FOUND,
+                    'error' => array(
+                        'type' => "SERVER_ERROR",
+                        'message' => 'Account not found.')
+                );
+            }else{
+                return array(
+                    'success' => false,
+                    'statusCode' => INTERNAL_SERVER_ERROR,
+                    'error' => array(
+                        'type' => "SERVER_ERROR",
+                        'message' => 'Code could be retrieved.')
+                );
+
+            }
+        }else{
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Internal Server error')
+            );
+
+        }
+
+    }
+
+    public function getDetails(){
+
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $id = $payload->userId;
+            $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
+            $qry = mysqli_query($this->con, $sql);
+
+            if (mysqli_num_rows($qry) == 1){
+                $data = "";
+                while ($row = mysqli_fetch_assoc($qry)){
+
+                    $data = array(
+                        'success' => true,
+                        'statusCode' => SUCCESS_RESPONSE,
+                        'user' =>[
+                            'name' => $row['name'],
+                            'surname' => $row['surname'],
+                            'email' => $row['email'],
+                            'msisdn' => $row['msisdn'],
+                            'address' => $row['address'],
+                            'town' => $row['town'],
+                            'profile' => $row['profile_image'],
+                            'status' => $row['status']
+                        ]
+                    );
+
+                }
+
+                return $data;
+            }else{
+                $data =  array(
+                    'success' => false,
+                    'statusCode' => SUCCESS_RESPONSE,
+                    'error' => array('type' => 'DATA_ERROR', 'message' => 'No data found')
+                );
+                return $data;
+            }
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+            );
+        }
     }
 
     public function myMatches(){

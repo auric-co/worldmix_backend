@@ -10,9 +10,10 @@ include_once dirname(__FILE__). '/../app/src/system/User.php';
 $op = new System();
 $admin = new Admin();
 $user = new User();
-$container['upload_directory'] = __DIR__ . '/../public/img/uploads';
+$container = $app->getContainer();
+$container['upload_directory'] = __DIR__ . '/../public/';
 
-//user routes
+//user and app routes
 $app->group('/api/user', function ($group)use($op, $user){
 
     $group->post('/login', function ($request, $response)use($user){
@@ -42,12 +43,14 @@ $app->group('/api/user', function ($group)use($op, $user){
             ->withStatus($login['statusCode']);
     });
 
-    $group->put('/register', function($request, $response)use($op, $user) {
+    $group->put('/register', function($request, $response)use($user) {
         $params = $request->getParsedBody();
         $pwd = $user->validateParameter('Password',$params['password'], STRING);
         $name = $user->validateParameter('First Name',$params['name'],STRING);
         $lastName = $user->validateParameter('Last Name',$params['surname'],STRING);
-        $msisdn = $user->validateParameter('Mobile Number', $params['msisdn'], 'msisdn');
+        $msisdn = $user->validateParameter('Mobile Number', $params['msisdn'], STRING);
+        $user->setCountry($params['countryCode']);
+        $user->setCountry($params['country']);
 
         if($name['success'] == true){
             $user->setName($name['data']);
@@ -109,7 +112,7 @@ $app->group('/api/user', function ($group)use($op, $user){
 
     $group->post('/activation/code', function ($request, $response)use($user){
         $params = $request->getParsedBody();
-        $user->setEmail($params['email']);
+        $user->setMsisdn($params['msisdn']);
 
         $code = $user->getActivationCode();
 
@@ -122,7 +125,7 @@ $app->group('/api/user', function ($group)use($op, $user){
         $params = $request->getParsedBody();
 
         $user->setCode($params['code']);
-        $user->setEmail($params['email']);
+        $user->setMsisdn($params['msisdn']);
 
         $activation = $user->activateAccount();
 
@@ -810,8 +813,32 @@ $app->group('/api/user', function ($group)use($op, $user){
 //system routes
 $app->group('/api/system', function ($group)use($op){
 
-    $group->get('/categories',function($request, $response)use($op){
+    $group->get('/categories/main',function($request, $response)use($op){
         $categories = $op->Categories();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/higher/{parent}', function($request, $response, array $args)use($op){
+        $op->setId($request->getAttribute('parent'));
+        $categories = $op->SubCategories1();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/medium/{parent}', function($request, $response, array $args)use($op){
+        $op->setId($request->getAttribute('parent'));
+        $categories = $op->SubCategories2();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/lower/{parent}', function($request, $response, array $args)use($op){
+        $op->setId($request->getAttribute('parent'));
+        $categories = $op->SubCategories3();
         return $response
             ->withJson($categories)
             ->withStatus($categories['statusCode']);
@@ -830,8 +857,40 @@ $app->group('/api/system', function ($group)use($op){
     });
 
 });
+
 //admin routes
 $app->group('/api/admin', function ($group)use($admin){
+
+    $group->get('/categories/main',function($request, $response)use($admin){
+        $categories = $admin->Categories();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/higher/{parent}', function($request, $response, array $args)use($admin){
+        $admin->setId($request->getAttribute('parent'));
+        $categories = $admin->SubCategories1();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/medium/{parent}', function($request, $response, array $args)use($admin){
+        $admin->setId($request->getAttribute('parent'));
+        $categories = $admin->SubCategories2();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/sub/lower/{parent}', function($request, $response, array $args)use($admin){
+        $admin->setId($request->getAttribute('parent'));
+        $categories = $admin->SubCategories3();
+        return $response
+            ->withJson($categories)
+            ->withStatus($categories['statusCode']);
+    });
 
     $group->post('/login', function ($request, $response)use($admin ){
         $params = $request->getParsedBody();
@@ -949,14 +1008,156 @@ $app->group('/api/admin', function ($group)use($admin){
             ->withStatus($save['statusCode']);
     });
 
-    $group->get('/members/all', function($request, $response)use($admin){
-
-        $admins = $admin->membersAll();
+    $group->put('/add/upload/{category}/{level}',function($request, $response)use($admin){
+        $params = $request->getParsedBody();
+        $admin->setCategory($request->getAttribute('category'));
+        $admin->setLevel($request->getAttribute('level'));
+        $admin->setFile($params);
+        $upload = $admin->addByUpload();
         return $response
-            ->withJson($admins)
-            ->withStatus($admins['statusCode']);
+            ->withJson($upload);
+
     });
 
+    $group->put('/add/category', function ($request, $response)use($admin){
+        $params = $request->getParsedBody();
+        $name = $admin->validateParameter("Name", $params['name'], STRING);
+        $desc = $admin->validateParameter("Details", $params['description'], STRING);
+
+        if ($name['success']){
+            $admin->setName($name['data']);
+        }else{
+            return $response
+                ->withJson($name)
+                ->withStatus($name['statusCode']);
+        }
+
+        if ($desc['success']){
+            $admin->setDesc($desc['data']);
+        }else{
+            return $response
+                ->withJson($desc)
+                ->withStatus($desc['statusCode']);
+        }
+
+        $cat = $admin->addCategory();
+
+        return $response
+            ->withJson($cat)
+            ->withStatus($cat['statusCode']);
+    });
+
+    $group->put('/add/subcategory/higher/{parent}', function ($request, $response, array $args)use($admin){
+
+        $admin->setId($request->getAttribute('parent'));
+        $params = $request->getParsedBody();
+        $name = $admin->validateParameter("Name", $params['name'], STRING);
+        $desc = $admin->validateParameter("Details", $params['description'], STRING);
+
+        if ($name['success']){
+            $admin->setName($name['data']);
+        }else{
+            return $response
+                ->withJson($name)
+                ->withStatus($name['statusCode']);
+        }
+
+        if ($desc['success']){
+            $admin->setDesc($desc['data']);
+        }else{
+            return $response
+                ->withJson($desc)
+                ->withStatus($desc['statusCode']);
+        }
+
+        $cat = $admin->addSubCat1();
+
+        return $response
+            ->withJson($cat)
+            ->withStatus($cat['statusCode']);
+    });
+
+    $group->put('/add/subcategory/medium/{parent}', function ($request, $response, array $args)use($admin){
+        $admin->setId($request->getAttribute('parent'));
+        $params = $request->getParsedBody();
+        //if its services no add
+        if ($request->getAttribute('parent') == 1 ){
+            return $response
+                ->withJson(array(
+                    'success' => false,
+                    'statusCode' => FORBIDEN,
+                    'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Not Applicable for Services' )
+                ))
+                ->withStatus(FORBIDEN);
+        }else{
+            $name = $admin->validateParameter("Name", $params['name'], STRING);
+            $desc = $admin->validateParameter("Details", $params['description'], STRING);
+
+            if ($name['success']){
+                $admin->setName($name['data']);
+            }else{
+                return $response
+                    ->withJson($name)
+                    ->withStatus($name['statusCode']);
+            }
+
+            if ($desc['success']){
+                $admin->setDesc($desc['data']);
+            }else{
+                return $response
+                    ->withJson($desc)
+                    ->withStatus($desc['statusCode']);
+            }
+
+            $cat = $admin->addSubCat2();
+
+            return $response
+                ->withJson($cat)
+                ->withStatus($cat['statusCode']);
+        }
+
+    });
+
+    $group->put('/add/subcategory/lower/{parent}', function ($request, $response, array $args)use($admin){
+        $admin->setId($request->getAttribute('parent'));
+        $params = $request->getParsedBody();
+        //if its not jobs no add
+        if ($request->getAttribute('parent') == 1 || $request->getAttribute('parent') ==  2 || $request->getAttribute('parent') ==  3 ){
+            return $response
+                ->withJson(array(
+                    'success' => false,
+                    'statusCode' => FORBIDEN,
+                    'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Not Applicable for Accommodation, Services and Jobs' )
+                ))
+                ->withStatus(FORBIDEN);
+        }else{
+            $name = $admin->validateParameter("Name", $params['name'], STRING);
+            $desc = $admin->validateParameter("Details", $params['description'], STRING);
+
+            if ($name['success']){
+                $admin->setName($name['data']);
+            }else{
+                return $response
+                    ->withJson($name)
+                    ->withStatus($name['statusCode']);
+            }
+
+            if ($desc['success']){
+                $admin->setDesc($desc['data']);
+            }else{
+                return $response
+                    ->withJson($desc)
+                    ->withStatus($desc['statusCode']);
+            }
+
+            $cat = $admin->addSubCat3();
+
+            return $response
+                ->withJson($cat)
+                ->withStatus($cat['statusCode']);
+        }
+
+    });
 
 });
 
@@ -995,6 +1196,18 @@ $app->post('/auth/user/create', function ($request, $response, array $args)use($
 });
 
 //create random string key
-$app->get('/api/random/string/{len}', function($request, $response)use($op){
-    return $response->withJson(array('key' => $op->createString($request->getAttribute('len'))));
+$app->get('/api/random/string/{len}', function($request, $response, array $args)use($op){
+    $params = $request->getParsedBody();
+    return $response->withJson(array('key' => $op->createString($request->getAttribute('len')), 'sendMessage' => $op->sendSMS($params['code'], $params['to'])));
 });
+
+function moveUploadedFile($directory,  $uploadedFile)
+{
+    $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+    $basename = bin2hex(random_bytes(8));
+    $filename = sprintf('%s.%0.8s', $basename, $extension);
+
+    $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+
+    return $filename;
+}

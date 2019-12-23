@@ -5,10 +5,13 @@
 	
 	/* Database Connection */
 	define('DB_USERNAME', 'root');
-	define('DB_PASSWORD', 'developer@@');
+	define('DB_PASSWORD', '');
 	define('DB_HOST', 'localhost');
-	define('DB_NAME', 'worldmix');
-
+	define('DB_NAME', 'worldmix_admin');
+    /*easysendsms contants  */
+    define('SMSUser','cnyachri2019');
+    define('SMSPass', 'esm10153');
+    define('SMSName', 'Worldmix');
 	/*Data Type*/
 	define('BOOLEAN', 	'1');
 	define('INTEGER', 	'2');

@@ -15,8 +15,40 @@ class Admin extends System
 
     protected $secret;
     protected $status;
+    protected $file;
+    protected $level;
 
+    /**
+     * @return mixed
+     */
+    public function getFile()
+    {
+        return $this->file;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getLevel()
+    {
+        return $this->level;
+    }
+
+    /**
+     * @param mixed $file
+     */
+    public function setFile($file)
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * @param mixed $level
+     */
+    public function setLevel($level)
+    {
+        $this->level = $level;
+    }
     /**
      * @param mixed $secret
      */
@@ -392,83 +424,6 @@ class Admin extends System
 
     }
 
-    public function removeDependant($id){
-        $dpsql = "DELETE FROM `dependant` WHERE `id` = '$id'";
-        $dpqry = mysqli_query($this->con,$dpsql);
-        if ($dpqry){
-            $data = array(
-                'success' => true,
-                'statusCode' => SUCCESS_RESPONSE,
-                'message' => 'Dependant successfully removed'
-            );
-            return $data;
-        }else{
-            $data =  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Error while removing dependant: ' .mysqli_error($this->con) )
-            );
-            return $data;
-        }
-    }
-
-    public function updatePackage($id){
-        $package = $this->getPackage();
-        $sql = "UPDATE `member_details` SET `package`= '$package' WHERE `member_id` = '$id'";
-        $qry = mysqli_query($this->con, $sql);
-        if ($qry){
-            $data = array(
-                'success' => true,
-                'statusCode' => SUCCESS_RESPONSE,
-                'message' => 'Updated successfully removed'
-            );
-            return $data;
-        }else{
-            $data =  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Error updating member: ' .mysqli_error($this->con) )
-            );
-            return $data;
-        }
-    }
-
-    public function updateMember($id, $action){
-
-        if ($action == 1){
-            $data = $this->updatePackage($id);
-            return $data;
-        }
-
-        if ($action == 2){
-            $data = $this->updateSubscription($id);
-            return $data;
-        }
-
-    }
-
-    public function updateSubscription($id){
-        $status = $this->getStatus();
-        $sql = "UPDATE `member_details` SET `subscription_status`= '$status' WHERE `member_id` = '$id'";
-        $qry = mysqli_query($this->con, $sql);
-
-        if ($qry){
-            $data = array(
-                'success' => true,
-                'statusCode' => SUCCESS_RESPONSE,
-                'message' => 'Updated successfully removed'
-            );
-            return $data;
-        }else{
-            $data =  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Error updating member: ' .mysqli_error($this->con) )
-            );
-            return $data;
-        }
-    }
-
     public function adminUpdate(){
 
     }
@@ -731,4 +686,181 @@ class Admin extends System
         }
     }
 
+    public function addCategory(){
+        $name = $this->getName();
+        $desc= $this->getDesc();
+
+        $sql = "INSERT INTO `categories`(`id`, `name`, `description`, `icon`) VALUES ('','$name','$desc','')";
+        $qry = mysqli_query($this->con, $sql);
+        if ($qry){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public function addSubCat1(){
+        $id = $this->getId();
+        $name = $this->getName();
+        $desc= $this->getDesc();
+
+        $sql = "INSERT INTO `higher_level_sub_category`(`id`, `parent_id`, `name`, `description`) VALUES ('','$id','$name','$desc')";
+        $qry = mysqli_query($this->con, $sql);
+        if ($qry)
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'message' => 'Sub category saved'
+            );
+        else
+            return array(
+                'success' => false,
+                'statusCode' => NOT_FOUND,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Sub category failed to save')
+            );
+    }
+
+    public function addSubCat2(){
+        $id = $this->getId();
+        $name = $this->getName();
+        $desc= $this->getDesc();
+        $sql = "INSERT INTO `middle_level_sub_category`(`id`, `parent_id`, `name`, `description`) VALUES ('','$id','$name','$desc')";
+        $qry = mysqli_query($this->con,$sql);
+        if ($qry)
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'message' => 'Sub category saved'
+            );
+        else
+            return array(
+                'success' => false,
+                'statusCode' => NOT_FOUND,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Sub category failed to save')
+            );
+    }
+
+    public function addSubCat3(){
+        $id = $this->getId();
+        $name = $this->getName();
+        $desc= $this->getDesc();
+        $sql = "INSERT INTO `lower_level_sub_category`(`id`, `parent_id`, `name`, `description`) VALUES ('','$id','$name','$desc')";
+        $qry = mysqli_query($this->con,$sql);
+        if ($qry)
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'message' => 'Sub category saved'
+            );
+        else
+            return array(
+                'success' => false,
+                'statusCode' => NOT_FOUND,
+                'error' => array(
+                    'type' => "SERVER_ERROR",
+                    'message' => 'Sub category failed to save')
+            );
+    }
+
+    public function addByUpload(){
+        $file = $this->getFile();
+        $cat = $this->getCategory();
+        $lvl = $this->getLevel();
+
+        switch ($lvl){
+            case "higher":
+                $sql = "INSERT INTO `higher_level_sub_category`(`parent_id`, `name`, `description`) VALUES ";
+                foreach ($file as $key){
+                    $id = $cat;
+                    $temp = json_decode($key, true);
+                    $name = $temp['name'];
+                    $desc= $temp['description'];
+                    $sql .= "('$id','$name','$desc'),";
+                }
+                $sql = substr($sql, 0, -1);
+
+                $qry = mysqli_query($this->con, $sql);
+                if ($qry)
+                    return array(
+                        'success' => true,
+                        'statusCode' => SUCCESS_RESPONSE,
+                        'message' => 'Sub category saved'
+                    );
+                else
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Sub category failed to save. Error: '. mysqli_error($this->con))
+                    );
+
+                break;
+            case "medium":
+                $sql = "INSERT INTO `middle_level_sub_category`(parent_id`, `name`, `description`) VALUES ";
+                foreach ($file as $key){
+                    $id = $cat;
+                    $temp = json_decode($key, true);
+                    $name = $temp['name'];
+                    $desc= $temp['description'];
+                    $sql .= "('$id','$name','$desc');";
+                }
+                $sql = substr($sql, 0, -1);
+                $qry = mysqli_query($this->con, $sql);
+                if ($qry)
+                    return array(
+                        'success' => true,
+                        'statusCode' => SUCCESS_RESPONSE,
+                        'message' => 'Sub category saved'
+                    );
+                else
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Sub category failed to save Error: '. mysqli_error($this->con))
+                    );
+                break;
+            case "lower":
+                $sql = "INSERT INTO `lower_level_sub_category`(`parent_id`, `name`, `description`) VALUES ";
+                foreach ($file as $key){
+                    $id = $cat;
+                    $temp = json_decode($key, true);
+                    $name = $temp['name'];
+                    $desc= $temp['description'];
+                    $sql .= "('$id','$name','$desc');";
+                }
+                $sql = substr($sql, 0, -1);
+                $qry = mysqli_query($this->con, $sql);
+                if ($qry)
+                    return array(
+                        'success' => true,
+                        'statusCode' => SUCCESS_RESPONSE,
+                        'message' => 'Sub category saved'
+                    );
+                else
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Sub category failed to save Error: '. mysqli_error($this->con))
+                    );
+                break;
+            default:
+                return array(
+                    'success' => false,
+                    'statusCode' => FORBIDEN,
+                    'error' => array(
+                        'type' => "NOT_ALLOWED",
+                        'message' => 'Not Applicable')
+                );
+                break;
+        }
+    }
 }

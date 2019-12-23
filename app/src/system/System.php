@@ -7,6 +7,7 @@
  * Time: 2:16 PM
  */
 include_once dirname(__FILE__) . '/Database.php';
+include_once dirname(__FILE__) . '/SMS.php';
 include_once dirname(__FILE__) . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -17,12 +18,14 @@ class System
     protected $pdo;
     protected $con;
     protected $email;
+    protected $sms;
     protected $password;
     protected $newPassword;
     protected $name;
     protected $msisdn;
     protected $lastName;
     protected $address;
+    protected $dob;
     protected $town;
     protected $token;
     protected $category;
@@ -40,6 +43,7 @@ class System
     protected $mail;
     protected $type;
     protected $country;
+    protected $countryCode;
     protected $dateStart;
     protected $deadline;
     protected $bedrooms;
@@ -80,6 +84,21 @@ class System
         return $this->token;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getCountryCode()
+    {
+        return $this->countryCode;
+    }
+
+    /**
+     * @param mixed $countryCode
+     */
+    public function setCountryCode($countryCode)
+    {
+        $this->countryCode = $countryCode;
+    }
 
     /**
      * @return mixed
@@ -240,13 +259,6 @@ class System
         $this->email = $email;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getAmount()
-    {
-        return $this->amount;
-    }
 
     /**
      * @return mixed
@@ -255,7 +267,6 @@ class System
     {
         return $this->category;
     }
-
 
     /**
      * @return mixed
@@ -308,10 +319,6 @@ class System
     /**
      * @return mixed
      */
-    public function getGender()
-    {
-        return $this->gender;
-    }
 
     /**
      * @return mixed
@@ -568,6 +575,7 @@ class System
     {
         $this->vehicleFuel = $vehicleFuel;
     }
+
     public function __construct()
     {
         $this->mail = new PHPMailer();
@@ -580,6 +588,9 @@ class System
         $db = new Database();
         $this->pdo = $db->PDO();
         $this->con = $db->mysqli();
+
+        //sms class by easysendsms
+            $this->sms = New SMS(SMSUser,SMSPass,"Worldmix");
     }
 
     public function domain(){
@@ -706,7 +717,7 @@ class System
     public function Categories(){
         $sql = "SELECT * FROM `categories` WHERE 1";
         $qry = mysqli_query($this->con, $sql);
-        if (mysqli_num_rows($qry) < 0){
+        if (mysqli_num_rows($qry) > 0){
 
             $cat = array();
             while ($row = mysqli_fetch_assoc($qry)){
@@ -735,10 +746,106 @@ class System
         }
     }
 
+    public function SubCategories1(){
+        $id = $this->getId();
+        $sql = "SELECT * FROM `higher_level_sub_category` WHERE `parent_id` = '$id' ";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'categories' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Sub Categories found'
+            );
+        }
+    }
+
+    public function SubCategories2(){
+        $id = $this->getId();
+        $sql = "SELECT * FROM `middle_level_sub_category` WHERE `parent_id` = '$id' ";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'categories' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Sub Categories found'
+            );
+        }
+    }
+
+    public function SubCategories3(){
+        $id = $this->getId();
+        $sql = "SELECT * FROM `lower_level_sub_category` WHERE `parent_id` = '$id' ";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name'],
+                    'details' => $row['description']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'categories' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => null,
+                'message' => 'No Sub Categories found'
+            );
+        }
+    }
+
     public function listingType(){
         $sql = "SELECT * FROM `listing_type` WHERE 1";
         $qry = mysqli_query($this->con, $sql);
-        if (mysqli_num_rows($qry) < 0){
+        if (mysqli_num_rows($qry) > 0){
 
             $type = array();
             while ($row = mysqli_fetch_assoc($qry)){
@@ -769,7 +876,7 @@ class System
     public function requestType(){
         $sql = "SELECT * FROM `request_type` WHERE 1";
         $qry = mysqli_query($this->con, $sql);
-        if (mysqli_num_rows($qry) < 0){
+        if (mysqli_num_rows($qry) > 0){
 
             $type = array();
             while ($row = mysqli_fetch_assoc($qry)){
@@ -795,6 +902,13 @@ class System
                 'message' => 'No Request Types found'
             );
         }
+    }
+
+    public function sendSMS($message, $mssdn){
+        $this->sms->setMessage($message);
+        $this->sms->setTo($mssdn);
+        $sent = $this->sms->send();
+
     }
 
 }
