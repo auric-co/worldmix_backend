@@ -51,6 +51,7 @@ class System
     protected $jobQualification;
     protected $vehicleFuel;
     protected $vehicleTransmission;
+    protected $thumbnail;
 
     /**
      * @param mixed $code
@@ -106,6 +107,23 @@ class System
     public function getNewPassword()
     {
         return $this->newPassword;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getThumbnail()
+    {
+        return $this->thumbnail;
+    }
+
+    /**
+     * @param mixed $thumbnail
+     */
+    public function setThumbnail($thumbnail)
+    {
+        $this->thumbnail = $thumbnail;
     }
 
     /**
@@ -590,7 +608,7 @@ class System
         $this->con = $db->mysqli();
 
         //sms class by easysendsms
-            $this->sms = New SMS(SMSUser,SMSPass,"Worldmix");
+        $this->sms = New SMS();
     }
 
     public function domain(){
@@ -640,40 +658,7 @@ class System
                 if (!is_numeric($value)) {
                     $data = array('message' => $fieldName . ' should be integer');
                 }
-                break;
-            case "town":
-                if (!is_string($value)) {
-                    $data = array('message' => $fieldName . ' should be string');
-                }
 
-                $province = new MembershipNumber();
-                $towns  = $province->townData();
-
-                $count = 0;
-                foreach ($towns as $key){
-                    if (in_array(strtolower($value), $key['cities'], true)){
-                        $count = $count + 1;
-                    }
-                }
-
-                if ($count == 0){
-                    $data = array('message' => $fieldName . ' is not valid town');
-                }
-                break;
-            case "package":
-                if (!is_numeric($value)) {
-                    $data = array('message' => $fieldName . ' should be package INT ID');
-                }
-                break;
-            case 'pin':
-                if (!is_string($value)) {
-                    $data = array('message' => $fieldName . ' should be string');
-
-                }
-                if (!preg_match('%^[0-9]\S{4,}$%', stripslashes(trim($value)))) {
-                    $data = array('message' => 'Pin should be atleast 4 numbers only');
-
-                }
                 break;
             case "mobile":
                 //validate mobile number here and add 00263
@@ -714,7 +699,7 @@ class System
         return substr(str_shuffle($string), 0, $len);
     }
 
-    public function Categories(){
+    public function Category(){
         $sql = "SELECT * FROM `categories` WHERE 1";
         $qry = mysqli_query($this->con, $sql);
         if (mysqli_num_rows($qry) > 0){
@@ -740,7 +725,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Categories found'
             );
         }
@@ -772,7 +757,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Sub Categories found'
             );
         }
@@ -804,7 +789,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Sub Categories found'
             );
         }
@@ -836,7 +821,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Sub Categories found'
             );
         }
@@ -867,7 +852,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Listing Types found'
             );
         }
@@ -898,7 +883,7 @@ class System
             return array(
                 'success' => true,
                 'statusCode' => NOT_FOUND,
-                'categories' => null,
+                'categories' => array(),
                 'message' => 'No Request Types found'
             );
         }
@@ -907,8 +892,199 @@ class System
     public function sendSMS($message, $mssdn){
         $this->sms->setMessage($message);
         $this->sms->setTo($mssdn);
-        $sent = $this->sms->send();
+        $sent = $this->sms->smsSend();
 
     }
 
+    public function sendRegText(){
+
+        $sent = $this->sms->smsSend();
+        return $sent;
+    }
+
+    public function  jobLevels(){
+
+        $sql = "SELECT * FROM `job_level` WHERE 1";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'levels' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'levels' => array(),
+                'message' => 'No Job Levels found'
+            );
+        }
+    }
+
+    public function  jobQualifications(){
+        $sql = "SELECT * FROM `job_qualification` WHERE 1";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'qualifications' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'qualifications' => array(),
+                'message' => 'No Job Qualifications found'
+            );
+        }
+    }
+
+    public function  Countries(){
+        $sql = "SELECT * FROM countries WHERE status = 1 ORDER BY country_name ASC";
+        $qry = mysqli_query($this->con, $sql);
+        $cou = array();
+        if (mysqli_num_rows($qry) > 0) {
+            while ($row = mysqli_fetch_assoc($qry)) {
+                $ct = array(
+                    'id' => $row['country_id'],
+                    'name' => $row['country_name']
+                );
+
+                array_push($cou, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'countries' => $cou
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'countries' => array(),
+                'message' => 'No Countries found'
+            );
+        }
+    }
+
+    public function  States(){
+        $id = $this->getId();
+        $sql = "SELECT * FROM states WHERE country_id = '$id' AND status = 1 ORDER BY state_name ASC";
+        $qry = mysqli_query($this->con, $sql);
+
+        if (mysqli_num_rows($qry) > 0){
+            $cou = array();
+            while ($row = mysqli_fetch_assoc($qry)) {
+                $ct = array(
+                    'id' => $row['state_id'],
+                    'name' => $row['state_name']
+                );
+
+                array_push($cou, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'states' => $cou
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'states' => array(),
+                'message' => 'No States found'
+            );
+        }
+    }
+    
+    public function  Cities(){
+        $id = $this->getId();
+        $sql = "SELECT * FROM cities WHERE state_id = '$id' AND status = 1 ORDER BY city_name ASC";
+        $qry = mysqli_query($this->con, $sql);
+
+        if (mysqli_num_rows($qry) > 0){
+            $cou = array();
+            while ($row = mysqli_fetch_assoc($qry)) {
+                $ct = array(
+                    'id' => $row['city_id'],
+                    'name' => $row['city_name']
+                );
+
+                array_push($cou, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'city' => $cou
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'city' => array(),
+                'message' => 'No Cities found'
+            );
+        }
+    }
+
+    public function vehicleBrands(){
+        $mode = $this->getCategory();
+        $type = $this->getType();
+        $subtype = $this->getModel();
+
+        $sql = "SELECT * FROM `brand` WHERE `category` = '4' AND `higher` = '$mode' AND `medium` = '$type' AND `lower` = '$subtype'";
+        $qry = mysqli_query($this->con, $sql);
+        if (mysqli_num_rows($qry) > 0){
+
+            $cat = array();
+            while ($row = mysqli_fetch_assoc($qry)){
+                $ct = array(
+                    'id' => $row['id'],
+                    'name' => $row['name']
+                );
+
+                array_push($cat, $ct);
+            }
+
+            return array(
+                'success' => true,
+                'statusCode' => SUCCESS_RESPONSE,
+                'brands' => $cat
+            );
+        }else{
+            return array(
+                'success' => true,
+                'statusCode' => NOT_FOUND,
+                'categories' => array(),
+                'message' => 'No Brands found'
+            );
+        }
+    }
 }

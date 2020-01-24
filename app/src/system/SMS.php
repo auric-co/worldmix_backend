@@ -8,8 +8,7 @@
  */
 class SMS
 {
-    protected $username = "Worldmixapp1";
-    protected $password = "Fantel@17";
+
     protected $from;
     protected $to;
     protected $message;
@@ -47,10 +46,10 @@ class SMS
         $this->to = $to;
     }
 
-    public function send(){
-        $token = base64_encode($this->username.":".$this->password);
+    public function smsSend(){
+        $token = base64_encode("Worldmixapp1".":"."Fantel@17");
 
-        $request = json_encode(array('from' => "WorldMix", 'to' => $this->getTo(), 'text' => $this->getMessage()));
+        $request = json_encode(array('from' => "Worldmix", 'to' => $this->getTo(), 'text' => $this->getMessage()));
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -63,20 +62,24 @@ class SMS
             CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => $request,
             CURLOPT_HTTPHEADER => array(
-                    "Authorization: Basic ".$token,
-                    "Cache-Control: no-cache",
-                    "Content-Type: application/json"
-                )
-            ));
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            if ($err) {
-                return $err;
-            } else {
-                $data = json_decode($response, true);
-                return $data;
+                "Authorization: Basic ".$token,
+                "Cache-Control: no-cache",
+                "Content-Type: application/json"
+            )
+        ));
+        $response = json_decode(curl_exec($curl), true);
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if ($error){
+            return json_encode(array("success" => false, "error" => $error));
+        }else{
+            if ($response){
+                return json_encode(array('success' => true, 'response' => json_encode($response)));
+            }else{
+                return $response;
             }
+        }
 
 
     }

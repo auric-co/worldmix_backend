@@ -1,0 +1,100 @@
+[10-Jan-2020 06:59:48 UTC] PHP Notice:  Undefined index: startDate in /home/worldmix/app.worldmixapp.com/app/routes.php on line 227
+[10-Jan-2020 06:59:48 UTC] PHP Stack trace:
+[10-Jan-2020 06:59:48 UTC] PHP   1. {main}() /home/worldmix/app.worldmixapp.com/public/index.php:0
+[10-Jan-2020 06:59:48 UTC] PHP   2. Slim\App->run() /home/worldmix/app.worldmixapp.com/public/index.php:27
+[10-Jan-2020 06:59:48 UTC] PHP   3. Slim\App->process() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:297
+[10-Jan-2020 06:59:48 UTC] PHP   4. Slim\App->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:392
+[10-Jan-2020 06:59:48 UTC] PHP   5. Slim\App->Slim\{closure:/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:63-78}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 06:59:48 UTC] PHP   6. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 06:59:48 UTC] PHP   7. Slim\DeferredCallable->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 06:59:48 UTC] PHP   8. call_user_func_array:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 06:59:48 UTC] PHP   9. Tuupola\Middleware\JwtAuthentication->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 06:59:48 UTC] PHP  10. Tuupola\Middleware\JwtAuthentication->process() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/DoublePassTrait.php:47
+[10-Jan-2020 06:59:48 UTC] PHP  11. Tuupola\Middleware\CallableHandler->handle() /home/worldmix/app.worldmixapp.com/vendor/tuupola/slim-jwt-auth/src/JwtAuthentication.php:123
+[10-Jan-2020 06:59:48 UTC] PHP  12. Slim\App->__invoke() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/CallableHandler.php:51
+[10-Jan-2020 06:59:48 UTC] PHP  13. Slim\Route->run() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:503
+[10-Jan-2020 06:59:48 UTC] PHP  14. Slim\Route->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:268
+[10-Jan-2020 06:59:48 UTC] PHP  15. Slim\Route->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 06:59:48 UTC] PHP  16. Slim\Handlers\Strategies\RequestResponse->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:281
+[10-Jan-2020 06:59:48 UTC] PHP  17. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 06:59:48 UTC] PHP  18. Slim\Container->{closure:/home/worldmix/app.worldmixapp.com/app/routes.php:179-538}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 06:59:48 UTC] PHP Notice:  Undefined index: thumbnail in /home/worldmix/app.worldmixapp.com/app/routes.php on line 231
+[10-Jan-2020 06:59:48 UTC] PHP Stack trace:
+[10-Jan-2020 06:59:48 UTC] PHP   1. {main}() /home/worldmix/app.worldmixapp.com/public/index.php:0
+[10-Jan-2020 06:59:48 UTC] PHP   2. Slim\App->run() /home/worldmix/app.worldmixapp.com/public/index.php:27
+[10-Jan-2020 06:59:48 UTC] PHP   3. Slim\App->process() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:297
+[10-Jan-2020 06:59:48 UTC] PHP   4. Slim\App->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:392
+[10-Jan-2020 06:59:48 UTC] PHP   5. Slim\App->Slim\{closure:/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:63-78}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 06:59:48 UTC] PHP   6. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 06:59:48 UTC] PHP   7. Slim\DeferredCallable->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 06:59:48 UTC] PHP   8. call_user_func_array:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 06:59:48 UTC] PHP   9. Tuupola\Middleware\JwtAuthentication->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 06:59:48 UTC] PHP  10. Tuupola\Middleware\JwtAuthentication->process() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/DoublePassTrait.php:47
+[10-Jan-2020 06:59:48 UTC] PHP  11. Tuupola\Middleware\CallableHandler->handle() /home/worldmix/app.worldmixapp.com/vendor/tuupola/slim-jwt-auth/src/JwtAuthentication.php:123
+[10-Jan-2020 06:59:48 UTC] PHP  12. Slim\App->__invoke() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/CallableHandler.php:51
+[10-Jan-2020 06:59:48 UTC] PHP  13. Slim\Route->run() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:503
+[10-Jan-2020 06:59:48 UTC] PHP  14. Slim\Route->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:268
+[10-Jan-2020 06:59:48 UTC] PHP  15. Slim\Route->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 06:59:48 UTC] PHP  16. Slim\Handlers\Strategies\RequestResponse->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:281
+[10-Jan-2020 06:59:48 UTC] PHP  17. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 06:59:48 UTC] PHP  18. Slim\Container->{closure:/home/worldmix/app.worldmixapp.com/app/routes.php:179-538}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP Notice:  Undefined index: startDate in /home/worldmix/app.worldmixapp.com/app/routes.php on line 227
+[10-Jan-2020 07:06:35 UTC] PHP Stack trace:
+[10-Jan-2020 07:06:35 UTC] PHP   1. {main}() /home/worldmix/app.worldmixapp.com/public/index.php:0
+[10-Jan-2020 07:06:35 UTC] PHP   2. Slim\App->run() /home/worldmix/app.worldmixapp.com/public/index.php:27
+[10-Jan-2020 07:06:35 UTC] PHP   3. Slim\App->process() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:297
+[10-Jan-2020 07:06:35 UTC] PHP   4. Slim\App->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:392
+[10-Jan-2020 07:06:35 UTC] PHP   5. Slim\App->Slim\{closure:/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:63-78}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP   6. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   7. Slim\DeferredCallable->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   8. call_user_func_array:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP   9. Tuupola\Middleware\JwtAuthentication->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP  10. Tuupola\Middleware\JwtAuthentication->process() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/DoublePassTrait.php:47
+[10-Jan-2020 07:06:35 UTC] PHP  11. Tuupola\Middleware\CallableHandler->handle() /home/worldmix/app.worldmixapp.com/vendor/tuupola/slim-jwt-auth/src/JwtAuthentication.php:123
+[10-Jan-2020 07:06:35 UTC] PHP  12. Slim\App->__invoke() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/CallableHandler.php:51
+[10-Jan-2020 07:06:35 UTC] PHP  13. Slim\Route->run() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:503
+[10-Jan-2020 07:06:35 UTC] PHP  14. Slim\Route->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:268
+[10-Jan-2020 07:06:35 UTC] PHP  15. Slim\Route->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP  16. Slim\Handlers\Strategies\RequestResponse->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:281
+[10-Jan-2020 07:06:35 UTC] PHP  17. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP  18. Slim\Container->{closure:/home/worldmix/app.worldmixapp.com/app/routes.php:179-538}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP Notice:  Undefined index: thumbnail in /home/worldmix/app.worldmixapp.com/app/routes.php on line 231
+[10-Jan-2020 07:06:35 UTC] PHP Stack trace:
+[10-Jan-2020 07:06:35 UTC] PHP   1. {main}() /home/worldmix/app.worldmixapp.com/public/index.php:0
+[10-Jan-2020 07:06:35 UTC] PHP   2. Slim\App->run() /home/worldmix/app.worldmixapp.com/public/index.php:27
+[10-Jan-2020 07:06:35 UTC] PHP   3. Slim\App->process() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:297
+[10-Jan-2020 07:06:35 UTC] PHP   4. Slim\App->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:392
+[10-Jan-2020 07:06:35 UTC] PHP   5. Slim\App->Slim\{closure:/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:63-78}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP   6. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   7. Slim\DeferredCallable->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   8. call_user_func_array:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP   9. Tuupola\Middleware\JwtAuthentication->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP  10. Tuupola\Middleware\JwtAuthentication->process() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/DoublePassTrait.php:47
+[10-Jan-2020 07:06:35 UTC] PHP  11. Tuupola\Middleware\CallableHandler->handle() /home/worldmix/app.worldmixapp.com/vendor/tuupola/slim-jwt-auth/src/JwtAuthentication.php:123
+[10-Jan-2020 07:06:35 UTC] PHP  12. Slim\App->__invoke() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/CallableHandler.php:51
+[10-Jan-2020 07:06:35 UTC] PHP  13. Slim\Route->run() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:503
+[10-Jan-2020 07:06:35 UTC] PHP  14. Slim\Route->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:268
+[10-Jan-2020 07:06:35 UTC] PHP  15. Slim\Route->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP  16. Slim\Handlers\Strategies\RequestResponse->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:281
+[10-Jan-2020 07:06:35 UTC] PHP  17. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP  18. Slim\Container->{closure:/home/worldmix/app.worldmixapp.com/app/routes.php:179-538}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP Notice:  Undefined index: data in /home/worldmix/app.worldmixapp.com/app/routes.php on line 245
+[10-Jan-2020 07:06:35 UTC] PHP Stack trace:
+[10-Jan-2020 07:06:35 UTC] PHP   1. {main}() /home/worldmix/app.worldmixapp.com/public/index.php:0
+[10-Jan-2020 07:06:35 UTC] PHP   2. Slim\App->run() /home/worldmix/app.worldmixapp.com/public/index.php:27
+[10-Jan-2020 07:06:35 UTC] PHP   3. Slim\App->process() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:297
+[10-Jan-2020 07:06:35 UTC] PHP   4. Slim\App->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:392
+[10-Jan-2020 07:06:35 UTC] PHP   5. Slim\App->Slim\{closure:/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:63-78}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP   6. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   7. Slim\DeferredCallable->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:70
+[10-Jan-2020 07:06:35 UTC] PHP   8. call_user_func_array:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP   9. Tuupola\Middleware\JwtAuthentication->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/DeferredCallable.php:57
+[10-Jan-2020 07:06:35 UTC] PHP  10. Tuupola\Middleware\JwtAuthentication->process() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/DoublePassTrait.php:47
+[10-Jan-2020 07:06:35 UTC] PHP  11. Tuupola\Middleware\CallableHandler->handle() /home/worldmix/app.worldmixapp.com/vendor/tuupola/slim-jwt-auth/src/JwtAuthentication.php:123
+[10-Jan-2020 07:06:35 UTC] PHP  12. Slim\App->__invoke() /home/worldmix/app.worldmixapp.com/vendor/tuupola/callable-handler/src/CallableHandler.php:51
+[10-Jan-2020 07:06:35 UTC] PHP  13. Slim\Route->run() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/App.php:503
+[10-Jan-2020 07:06:35 UTC] PHP  14. Slim\Route->callMiddlewareStack() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:268
+[10-Jan-2020 07:06:35 UTC] PHP  15. Slim\Route->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/MiddlewareAwareTrait.php:117
+[10-Jan-2020 07:06:35 UTC] PHP  16. Slim\Handlers\Strategies\RequestResponse->__invoke() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Route.php:281
+[10-Jan-2020 07:06:35 UTC] PHP  17. call_user_func:{/home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40
+[10-Jan-2020 07:06:35 UTC] PHP  18. Slim\Container->{closure:/home/worldmix/app.worldmixapp.com/app/routes.php:179-538}() /home/worldmix/app.worldmixapp.com/vendor/slim/slim/Slim/Handlers/Strategies/RequestResponse.php:40

@@ -4,10 +4,10 @@
 	define('SECRETE_KEY', 'IajxETyHgKbWADSfG9pBmJuFkwlsZrtC');
 	
 	/* Database Connection */
-	define('DB_USERNAME', 'root');
-	define('DB_PASSWORD', '');
+	define('DB_USERNAME', 'worldmix_admin');
+	define('DB_PASSWORD', 'password@2021');
 	define('DB_HOST', 'localhost');
-	define('DB_NAME', 'worldmix_admin');
+	define('DB_NAME', 'worldmix_app');
     /*easysendsms contants  */
     define('SMSUser','cnyachri2019');
     define('SMSPass', 'esm10153');

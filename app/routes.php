@@ -6,15 +6,24 @@ $app->get('/', App\Action\HomeAction::class)
 include_once dirname(__FILE__). '/../app/src/system/System.php';
 include_once dirname(__FILE__). '/../app/src/system/Admin.php';
 include_once dirname(__FILE__). '/../app/src/system/User.php';
+include_once dirname(__FILE__). '/../app/src/system/SMS.php';
+include_once dirname(__FILE__). '/../app/src/system/cronjobs/Match.php';
 
 $op = new System();
 $admin = new Admin();
 $user = new User();
+$sms = new SMS();
+$match = new Match();
 $container = $app->getContainer();
-$container['upload_directory'] = __DIR__ . '/../public/';
+$container['upload_directory'] = __DIR__ . '/../../public_html/home/uploads/images/';
 
+$app->get('/test', function ($request, $response)use($match){
+    return $response ->withJson($match->allListing());
+});
 //user and app routes
 $app->group('/api/user', function ($group)use($op, $user){
+
+
 
     $group->post('/login', function ($request, $response)use($user){
         $params = $request->getParsedBody();
@@ -49,9 +58,11 @@ $app->group('/api/user', function ($group)use($op, $user){
         $name = $user->validateParameter('First Name',$params['name'],STRING);
         $lastName = $user->validateParameter('Last Name',$params['surname'],STRING);
         $msisdn = $user->validateParameter('Mobile Number', $params['msisdn'], STRING);
-        $user->setCountry($params['countryCode']);
-        $user->setCountry($params['country']);
+        $country = $user->validateParameter('Country', $params['country'], STRING);
+        $countryCode = $user->validateParameter('Country Code', $params['code'], STRING);
 
+        $user->setCountry($country['data']);
+        $user->setCountryCode($countryCode['data']);
         if($name['success'] == true){
             $user->setName($name['data']);
         }else{
@@ -167,17 +178,39 @@ $app->group('/api/user', function ($group)use($op, $user){
     //listings routes
     $group->put('/save/listings/{category}', function ($request, $response)use($user){
         $type = $request->getAttribute('category');
-
         switch ($type){
             case "1":
                 //services listing
                 $params = $request->getParsedBody();
                     $token = $params['token'];
-                    $service = $params['service_id'];
-                    $name = $params['service'];
+                    $service = $user->validateParameter("Service ID",$params['service'], INTEGER);
+                    $details = $user->validateParameter("Details",$params['details'], STRING);
+                    $name = $user->validateParameter("Name",$params['name'], STRING);
+
+                    if ($name['success']){
+                        $user->setName($name['data']);
+                    }else{
+                        return $response
+                            ->withJson($name)
+                            ->withStatus($name['statusCode']);
+                    }
+
+                    if ($service['success']){
+                        $user->setId($service['data']);
+                    }else{
+                        return $response
+                            ->withJson($service)
+                            ->withStatus($service['statusCode']);
+                    }
+
+                    if ($details['success']){
+                        $user->setDesc($details['data']);
+                    }else{
+                        return $response
+                            ->withJson($details)
+                            ->withStatus($details['statusCode']);
+                    }
                     $user->setCategory($type);
-                    $user->setId($service);
-                    $user->setName($name);
                     $user->setToken($token);
                     $subscribe = $user->saveService();
                 return $response
@@ -186,18 +219,17 @@ $app->group('/api/user', function ($group)use($op, $user){
                 break;
             case "2":
                 //accommodation
-                //`thumbnails`
                 $params = $request->getParsedBody();
                 $token = $params['token'];
                 $name = $user->validateParameter("Name", $params['name'], STRING);
                 $subcat = $user->validateParameter("Sub Category1", $params['subcategory1'], INTEGER);
                 $bedrooms = $user->validateParameter("# of Bedrooms", $params['bedrooms'], INTEGER);
                 $dateVacant = $user->validateParameter("Start Date",$params['startDate'], STRING);
-                $price = $user->validateParameter("Rent Price", $params['price'], MYSQLI_TYPE_DECIMAL);
+                $price = $user->validateParameter("Rent Price", $params['price'], STRING);
                 $town = $user->validateParameter("Town", $params['town'], STRING);
                 $country = $user->validateParameter("Country",$params['country'], STRING);
-                $address = $user->validateParameter("Address",$params['address'], STRING);
-                $location = $user->validateParameter("Location", $params['location'], STRING, false);
+                $image = $user->validateParameter("Thumbnail", $params['thumbnail'], STRING);
+                $notes = $user->validateParameter("Notes", $params['notes'], STRING);
 
                 $user->setCategory($type);
                 $user->setToken($token);
@@ -207,6 +239,22 @@ $app->group('/api/user', function ($group)use($op, $user){
                     return $response
                         ->withJson($name)
                         ->withStatus($name['statusCode']);
+                }
+
+                if ($notes['success']){
+                    $user->setDesc($notes['data']);
+                }else{
+                    return $response
+                        ->withJson($notes)
+                        ->withStatus($notes['statusCode']);
+                }
+
+                if ($image['success']){
+                    $user->setThumbnail($image['data']);
+                }else{
+                    return $response
+                        ->withJson($image)
+                        ->withStatus($image['statusCode']);
                 }
 
                 if ($subcat['success']){
@@ -249,22 +297,6 @@ $app->group('/api/user', function ($group)use($op, $user){
                         ->withStatus($country['statusCode']);
                 }
 
-                if ($address['success']){
-                    $user->setAddress($address['data']);
-                }else{
-                    return $response
-                        ->withJson($address)
-                        ->withStatus($address['statusCode']);
-                }
-
-                if ($location['success']){
-                    $user->setLocation($location['data']);
-                }else{
-                    return $response
-                        ->withJson($location)
-                        ->withStatus($location['statusCode']);
-                }
-
                 if ($price['success']){
                     $user->setPrice($price['data']);
                 }else{
@@ -288,10 +320,10 @@ $app->group('/api/user', function ($group)use($op, $user){
                 $qualification = $user->validateParameter("Job Qualification", $params['qualification'], INTEGER);
                 $name = $user->validateParameter("Job title", $params['title'], STRING);
                 $subcat = $user->validateParameter("Job Field", $params['field'], INTEGER);
-                $subcat2 = $user->validateParameter("Job Category", $params, INTEGER);
+                $subcat2 = $user->validateParameter("Job Category", $params['category'], INTEGER);
                 $notes = $user->validateParameter("Notes", $params['notes'], STRING);
                 $deadline = $user->validateParameter("Deadline", $params['deadline'], STRING, false);
-                $city = $user->validateParameter('Town', $params['town'], STRING);
+                $city = $user->validateParameter('Town', $params['town'], INTEGER, false);
                 $country = $user->validateParameter("Country", $params['country'], STRING);
 
                 if ($name['success']){
@@ -375,19 +407,27 @@ $app->group('/api/user', function ($group)use($op, $user){
             case "4":
                 //vehicle
                 $user->setCategory($type);
-                //`thumbnail`
                 $params = $request->getParsedBody();
+                $token  = $params['token'];
                 $name = $user->validateParameter("Name", $params['name'], STRING);
                 $subcat = $user->validateParameter("Mode of transport medium", $params['mode'], INTEGER);
                 $subcat2 = $user->validateParameter("Type of vehicle", $params['type'], INTEGER);
-                $subcat3 = $user->validateParameter("Vehicle Model", $params['vehicle'], INTEGER);
+                $subcat3 = $user->validateParameter("Vehicle Model", $params['model'], INTEGER);
+                $brand = $user->validateParameter("Vehicle brand", $params['brand'], INTEGER);
                 $fuel = $user->validateParameter("Vehicle fuel", $params['fuel'], STRING);
-                $transmission = $user->validateParameter("Transmission", $params['transmission'], STRING, false);
+                $transmission = $user->validateParameter("Transmission", $params['transmission'], STRING);
                 $description = $user->validateParameter("Notes", $params['notes'], STRING);
-                $location = $user->validateParameter("Location", $params['location'], STRING, false);
                 $town = $user->validateParameter("Town", $params['town'], STRING);
-                $price = $user->validateParameter("Price", $params['price'], MYSQLI_TYPE_DECIMAL);
-                $country = $user->validateParameter("Country", $params['country'], STRING);
+                $image = $user->validateParameter("Thumbnail", $params['thumbnail'], STRING);
+                $price = $user->validateParameter("Price", $params['price'], STRING);
+
+                if ($subcat3['success']){
+                    $user->setModel($name['data']);
+                }else{
+                    return $response
+                        ->withJson($subcat3)
+                        ->withStatus($subcat3['statusCode']);
+                }
 
                 if ($name['success']){
                     $user->setName($name['data']);
@@ -396,13 +436,12 @@ $app->group('/api/user', function ($group)use($op, $user){
                         ->withJson($name)
                         ->withStatus($name['statusCode']);
                 }
-
-                if ($country['success']){
-                    $user->setCountry($country['data']);
+                if ($brand['success']){
+                    $user->setBrand($brand['data']);
                 }else{
                     return $response
-                        ->withJson($country)
-                        ->withStatus($country['statusCode']);
+                        ->withJson($brand)
+                        ->withStatus($brand['statusCode']);
                 }
 
                 if ($subcat['success']){
@@ -453,14 +492,6 @@ $app->group('/api/user', function ($group)use($op, $user){
                         ->withStatus($description['statusCode']);
                 }
 
-                if ($location['success']){
-                    $user->setLocation($location['data']);
-                }else{
-                    return $response
-                        ->withJson($location)
-                        ->withStatus($location['statusCode']);
-                }
-
                 if ($town['success']){
                     $user->setTown($town['data']);
                 }else{
@@ -476,6 +507,15 @@ $app->group('/api/user', function ($group)use($op, $user){
                         ->withJson($price)
                         ->withStatus($price['statusCode']);
                 }
+
+                if ($image['success']){
+                    $user->setThumbnail($image['data']);
+                }else{
+                    return $response
+                        ->withJson($image)
+                        ->withStatus($image['statusCode']);
+                }
+                $user->setToken($token);
 
                 $vehicle = $user->saveVehicle();
                 return $response
@@ -497,15 +537,53 @@ $app->group('/api/user', function ($group)use($op, $user){
 
     });
 
+    $group->post('/upload/thumbnail/{id}', function ($request, $response)use($user){
+        $directory = $this->get('upload_directory');
+        $uploadedFiles = $request->getUploadedFiles();
+        $uploadedFile = $uploadedFiles['file'];
+        $path = $directory."/thumbnails/";
+        if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
+            $filename = moveUploadedFile($path, $uploadedFile);
+
+            $url = "/thumbnails/".$filename;
+            $user->setThumbnail($url);
+            return $response->withJson(
+                array(
+                    'success' => true,
+                    'statusCode' => SUCCESS_RESPONSE,
+                    'error'=> array(
+                        'type' => "UPLOAD_ERROR",
+                        'message' => "Upload Complete"
+                    )
+                )
+            )->withStatus(200);
+        }else{
+
+            return $response->withJson(
+                array(
+                    'success' => false,
+                    'statusCode' => FORBIDEN,
+                    'error'=> array(
+                        'type' => "UPLOAD_ERROR",
+                        'message' => "Failed to upload image"
+                    )
+                )
+            )->withStatus(200);
+
+        }
+    });
+
     $group->put('/subscribe/requests/{category}', function ($request, $response)use($user){
         $type = $request->getAttribute('category');
         switch ($type){
             case "1":
                 $params = $request->getParsedBody();
                 $token = $params['token'];
+                $name= $params['name'];
                 $service = $params['service_id'];
                 $user->setCategory($type);
                 $user->setId($service);
+                $user->setName($name);
                 $user->setToken($token);
                 $subscribe = $user->serviceSubscribe();
                 return $response
@@ -600,6 +678,7 @@ $app->group('/api/user', function ($group)use($op, $user){
                 $city = $user->validateParameter('Town', $params['town'], STRING);
                 $country = $user->validateParameter("Country", $params['country'], STRING);
 
+
                 if ($level['success']){
                     $user->setJobLevel($level['data']);
                 }else{
@@ -657,6 +736,7 @@ $app->group('/api/user', function ($group)use($op, $user){
                 $user->setCategory($type);
                 $params = $request->getParsedBody();
                 $subcat = $user->validateParameter("Mode of transport medium", $params['mode'], INTEGER);
+                $name = $user->validateParameter("Name", $params['name'], STRING);
                 $subcat2 = $user->validateParameter("Type of vehicle", $params['type'], INTEGER);
                 $subcat3 = $user->validateParameter("Vehicle Model", $params['vehicle'], INTEGER);
                 $fuel = $user->validateParameter("Vehicle fuel", $params['fuel'], STRING);
@@ -665,6 +745,15 @@ $app->group('/api/user', function ($group)use($op, $user){
                 $price = $user->validateParameter("Price", $params['price'], MYSQLI_TYPE_DECIMAL);
                 $price2 = $user->validateParameter('Top Price',$params['priceRange'], MYSQLI_TYPE_DECIMAL);
                 $country = $user->validateParameter("Country", $params['country'], STRING);
+
+                if ($name['success']){
+                    $user->setName($name['data']);
+                }else{
+                    return $response
+                        ->withJson($name)
+                        ->withStatus($name['statusCode']);
+                }
+
                 if ($country['success']){
                     $user->setCountry($country['data']);
                 }else{
@@ -738,7 +827,7 @@ $app->group('/api/user', function ($group)use($op, $user){
                         ->withStatus($price['statusCode']);
                 }
 
-                $vehicle = $user->vehichleSubscribe();
+                $vehicle = $user->vehicleSubscribe();
                 return $response
                     ->withJson($vehicle)
                     ->withStatus($vehicle['statusCode']);
@@ -760,7 +849,8 @@ $app->group('/api/user', function ($group)use($op, $user){
 
     $group->delete('/remove/{type}/{id}', function ($request, $response)use($user){
         $type = $request->getAttribute('type');
-
+        $params = $request->getParsedBody();
+        $user->setToken($params['token']);
         switch ($type){
             case 'listing':
                 $id = $request->getAttribute('id');
@@ -805,19 +895,121 @@ $app->group('/api/user', function ($group)use($op, $user){
         $matches = $user->myMatches();
 
         return $response
+            ->withJson(array('matches' => $matches))
+            ->withStatus($matches['statusCode']);
+    });
+
+    $group->post('/my/matches/by/{cat}',function($request, $response)use($user){
+
+    });
+
+    $group->post('/my/matches/details/{id}', function($request, $response)use($user){
+        $id = $request->getAttribute("id");
+        $params = $request->getParsedBody();
+
+        $user->setToken($params['token']);
+        $user->setId($id);
+        $matches = $user->matchDetails();
+
+        return $response
             ->withJson($matches)
             ->withStatus($matches['statusCode']);
     });
+
+    $group->post('/my/matches/new', function($request, $response)use($user){
+        $params = $request->getParsedBody();
+
+        $user->setToken($params['token']);
+        $matches = $user->newMatches();
+
+        return $response
+            ->withJson($matches)
+            ->withStatus($matches['statusCode']);
+    });
+
+    $group->post('/my/match/count', function($request, $response)use($user){
+        $params = $request->getParsedBody();
+        $user->setToken($params['token']);
+        $count = $user->matchCount();
+        return $response->withJson(array('count' => $count));
+    });
+
+    $group->post('/my/listings', function ($request, $response)use($user){
+        $params = $request->getParsedBody();
+
+        $user->setToken($params['token']);
+        $matches = $user->userListingsAll();
+
+        return $response
+            ->withJson($matches)
+            ->withStatus($matches['statusCode']);
+    });
+
+    $group->delete('/listing/delete/{id}/{type}', function ($request, $response)use($user){
+        $id = $request->getParsedBody();
+        $user->setId($id);
+        $delete = $user->deleteList();
+        return $response->withJson($delete)
+            ->withStatus($delete['statusCode']);
+    });
+
 });
 
 //system routes
 $app->group('/api/system', function ($group)use($op){
 
+    $group->get('/countries',function($request, $response)use($op){
+        $countries = $op->Countries();
+        return $response
+            ->withJson($countries)
+            ->withStatus($countries['statusCode']);
+    });
+
+    $group->get('/country/states/{country}',function($request, $response)use($op){
+        $op->setId($request->getAttribute('country'));
+        $countries = $op->States();
+        return $response
+            ->withJson($countries)
+            ->withStatus($countries['statusCode']);
+    });
+
+    $group->get('/country/state/cities/{state}',function($request, $response)use($op){
+        $op->setId($request->getAttribute('state'));
+        $countries = $op->Cities();
+        return $response
+            ->withJson($countries)
+            ->withStatus($countries['statusCode']);
+    });
+
     $group->get('/categories/main',function($request, $response)use($op){
-        $categories = $op->Categories();
+        $categories = $op->Category();
         return $response
             ->withJson($categories)
             ->withStatus($categories['statusCode']);
+    });
+
+    $group->get('/categories/jobs/levels',function($request, $response)use($op){
+        $levels = $op->jobLevels();
+        return $response
+            ->withJson($levels)
+           ->withStatus($levels['statusCode']);
+    });
+
+    $group->get('/categories/jobs/qualifications',function($request, $response)use($op){
+        $qualifications = $op->jobQualifications();
+        return $response
+            ->withJson($qualifications)
+           ->withStatus($qualifications['statusCode']);
+    });
+
+    $group->get('/vehicle/brands/{category}/{type}/{subtype}',function($request, $response)use($op){
+        $op->setCategory($request->getAttribute('category'));
+        $op->setType($request->getAttribute('type'));
+        $op->setModel($request->getAttribute('subtype'));
+        $qualifications = $op->vehicleBrands();
+        return $response
+            ->withJson($qualifications)
+           ->withStatus($qualifications['statusCode']);
     });
 
     $group->get('/categories/sub/higher/{parent}', function($request, $response, array $args)use($op){
@@ -862,7 +1054,7 @@ $app->group('/api/system', function ($group)use($op){
 $app->group('/api/admin', function ($group)use($admin){
 
     $group->get('/categories/main',function($request, $response)use($admin){
-        $categories = $admin->Categories();
+        $categories = $admin->Category();
         return $response
             ->withJson($categories)
             ->withStatus($categories['statusCode']);
@@ -972,7 +1164,7 @@ $app->group('/api/admin', function ($group)use($admin){
 
         $admin->setEmail($email['data']);
         $admin->setPassword($password['data']);
-        $admin->setPermission($permission['data']);
+        $admin->setPermissions($permission['data']);
         $admin->setDept($dept['data']);
         $register = $admin->create();
 
@@ -1196,11 +1388,14 @@ $app->post('/auth/user/create', function ($request, $response, array $args)use($
 });
 
 //create random string key
-$app->get('/api/random/string/{len}', function($request, $response, array $args)use($op){
-    $params = $request->getParsedBody();
-    return $response->withJson(array('key' => $op->createString($request->getAttribute('len')), 'sendMessage' => $op->sendSMS($params['code'], $params['to'])));
+$app->get('/api/random/string/{len}', function($request, $response, array $args)use($sms, $match){
+    return $response->withJson(array('match data' => $match->allListing()));
 });
 
+$app->get('/api/random/string/2/{len}', function($request, $response, array $args)use($sms, $match, $user){
+
+    return $response->withJson(array('requests' => $match->myRequests(19)));
+});
 function moveUploadedFile($directory,  $uploadedFile)
 {
     $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);

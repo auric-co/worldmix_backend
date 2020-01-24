@@ -12,8 +12,6 @@ use Firebase\JWT\JWT;
 class User extends System
 {
 
-
-
     function repost(){
 
     }
@@ -24,13 +22,6 @@ class User extends System
 
     function checkLogin(){
 
-    }
-    function sendRegText($code){
-        $sms = new SMS();
-        $sms->setTo($this->getMsisdn());
-        $sms->setMessage($this->getDetails());
-
-        return $sms->send();
     }
 
     function sendRegEmail($code){
@@ -405,13 +396,13 @@ class User extends System
                     return $data;
                 }else {
                     $code = rand(1000, 9999);
-                    $sql = "INSERT INTO `users`(`id`, `email`, `password`, `name`, `surname`, `msisdn`, `town`, `country_code`, `country`, `address`, `profile_image`, `token`, `status`) VALUES ('','','$pwd','$name','$name','$u','','$ccode','$country','','','$code','0')";
+                    $sql = "INSERT INTO `users`(`id`, `email`, `password`, `name`, `surname`, `msisdn`, `town`, `country_code`, `country`, `address`, `profile_image`, `token`, `status`) VALUES ('','','$pwd','$name','$sname','$u','','$ccode','$country','','','$code','0')";
                     $insert = mysqli_query($this->con, $sql);
                     if ($insert){
                         $message = "Thank you for registering with WorldMix. Here is your activation code: ".$code;
                         $this->sms->setMessage($message);
                         $this->sms->setTo($u);
-                        $sent = $this->sms->send();
+                        $sent = $this->sms->smsSend();
                         $data = array('success' => true, 'statusCode' => CREATED, 'message'=> 'Account created successfully. Please activate your account', 'sms'=> $sent);
                         return $data;
 
@@ -488,8 +479,12 @@ class User extends System
                 $sql = "UPDATE `users` SET `code` = '$code' WHERE `msisdn` = '$user' AND `status` = '0'";
                 $qry = mysqli_query($this->con, $sql);
                 if ($qry){
+                    $message = "Thank you for registering with WorldMix. Here is your activation code: ".$code;
 
-                    if($this->sendRegEmail($code)){
+                    $this->sms->setMessage($message);
+                    $this->sms->setTo($user);
+                    $sent = $this->sms->smsSend();
+                    if($sent['success'] == true){
                         $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Code has been sent');
                         return $data;
                     }else{
@@ -502,7 +497,7 @@ class User extends System
                         'statusCode' => INTERNAL_SERVER_ERROR,
                         'error' => array(
                             'type' => "SERVER_ERROR",
-                            'message' => 'Code could not be retrieved. Internal Server error')
+                            'message' => 'Code could not be retrieved. Account might be activated already')
                     );
                 }
             }elseif ($res->fetchColumn() == 0){
@@ -558,6 +553,7 @@ class User extends System
                             'msisdn' => $row['msisdn'],
                             'address' => $row['address'],
                             'town' => $row['town'],
+                            'country' => $row['country'],
                             'profile' => $row['profile_image'],
                             'status' => $row['status']
                         ]
@@ -583,13 +579,70 @@ class User extends System
         }
     }
 
+    public function userDetails($id){
+        $sql = "SELECT * FROM `users` WHERE `id` = '$id'";
+        $qry = mysqli_query($this->con, $sql);
+
+        if (mysqli_num_rows($qry) == 1){
+            $data = "";
+            while ($row = mysqli_fetch_assoc($qry)){
+                $data = array(
+                    'name' => $row['name'],
+                    'surname' => $row['surname'],
+                    'email' => $row['email'],
+                    'msisdn' => $row['msisdn'],
+                    'address' => $row['address'],
+                    'town' => $row['town'],
+                    'country' => $row['country'],
+                    'profile' => $row['profile_image'],
+                    'status' => $row['status']
+                );
+
+            }
+
+            return $data;
+        }else{
+            return array();
+        }
+    }
+
+    public function countMatches($cat, $id){
+        $sql = "SELECT * FROM `matches` WHERE `user` = '$id' AND  `category` = '$cat' AND `status` = '0'";
+        $qry = mysqli_query($this->con, $sql);
+        return mysqli_num_rows($qry);
+    }
+
+    public function matchCount(){
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $id = $payload->userId;
+            $services = $this->countMatches(1, $id);
+            $accommodation = $this->countMatches(2, $id);
+            $jobs = $this->countMatches(3, $id);
+            $vehicles = $this->countMatches(4, $id);
+            return array(
+                'services' => $services, 'accommodation' => $accommodation, 'jobs' => $jobs, 'vehicle' => $vehicles
+            );
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+            );
+        }
+    }
+
+    public function newMatches(){
+
+    }
     public function myMatches(){
-        //return both requests and listings matches
+
         try{
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $id = $payload->userId;
 
-            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'requests'=> $this->listingsMatches($id), 'listings' => $this->listingsMatches($id));
+
+            $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'requests'=> $this->requestsMatches($id), 'listings' => $this->listingsMatches($id));
             return $data;
         }catch (\Exception $e){
             return array(
@@ -600,33 +653,565 @@ class User extends System
         }
     }
 
+    public function myListings($id){
+        $lsql = "SELECT * FROM `listings` WHERE `user` = '$id' ORDER BY `added` DESC ";
+        $lqry = mysqli_query($this->con, $lsql);
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = array();
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $lds = array(
+                    'id' => $rs['id'],
+                    'user' => $rs['user'],
+                    'category' => $this->Categories($rs['category']),
+                    'name' => $rs['name'],
+                    'type' => $this->listing_Type($rs['type']),
+                    'details' => $this->listingDetails($rs['category'],$rs['id']),
+                    'date_created' => $rs['added'],
+                    'post' => $rs['post']
+                );
+
+                array_push($ls, $lds);
+            }
+
+            return  $ls;
+        }else{
+            return  array();
+        }
+
+    }
+
+    public function userListingsAll(){
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $id = $payload->userId;
+            $request = $this->myRequests($id);
+            $listings = $this->myListings($id);
+            $all = array_merge($request, $listings);
+            $vl = array_column($all, 'date_created');
+            array_multisort($vl, SORT_DESC, $all);
+            if (sizeof($all)){
+                return array(
+                    'success' => true,
+                    'statusCode' => SUCCESS_RESPONSE,
+                    'listing' => $all
+                );
+            }else{
+                return array(
+                    'success' => true,
+                    'statusCode' => NOT_FOUND,
+                    'listing' => array(),
+                    'message' => 'No listings found'
+                );
+            }
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+            );
+        }
+    }
+
+    public function myRequests($id){
+        $lsql = "SELECT * FROM `request` WHERE `user` = '$id' ORDER BY `added` DESC ";
+        $lqry = mysqli_query($this->con, $lsql);
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = array();
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $lds = array(
+                    'id' => $rs['id'],
+                    'user' => $rs['user'],
+                    'category' => $this->Categories($rs['category']),
+                    'name' => $rs['name'],
+                    'type' => $this->request_Type($rs['type']),
+                    'details' => $this->requestDetails($rs['category'],$rs['id']),
+                    'date_created' => $rs['added'],
+                    'post' => $rs['post']
+                );
+
+                array_push($ls, $lds);
+            }
+
+            return $ls;
+
+        }else{
+            return array();
+        }
+    }
+
+    public function listingDetails($cat, $id){
+        switch ($cat){
+            case "1":
+                $sql = "SELECT * FROM `services` WHERE `type` = 'Listing' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'type' => $rs['type'],
+                            'parent' => $rs['parent_id'],
+                            'name' => $rs['name'],
+                            'details' => $rs['description']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+                break;
+            case "2":
+
+                $sql = "SELECT * FROM `accomodation` WHERE `type` = 'Listing' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'name' => $rs['name'],
+                            'property' => $rs['higher_level_sub_category'],
+                            'thumbnail' => $rs['thumbnail'],
+                            'bedrooms' => $rs['bedrooms'],
+                            'price' => $rs['price'],
+                            'town' => $rs['town'],
+                            'country' => $rs['country'],
+                            'date_vacant' => $rs['date_vacant'],
+                            'details' => $rs['details']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            case "3":
+
+                $sql = "SELECT * FROM `jobs` WHERE `type` = 'Listing' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'category' => $rs['higher_level_subcategory'],
+                            'field' => $rs['medium_level_subcategory'],
+                            'level' => $rs['level'],
+                            'qualification' => $rs['qualification'],
+                            'name' => $rs['name'],
+                            'deadline' => $rs['deadline'],
+                            'details' => $rs['description'],
+                            'city' => $rs['city'],
+                            'country' => $rs['country']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            case "4":
+
+                $sql = "SELECT * FROM `vehicles`  WHERE `type` = 'Listing' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'name' => $rs['name'],
+                            'mode' => $rs['higher_level_sub_category'],
+                            'vehicleType' => $rs['middle_level_sub_category'],
+                            'subType' => $rs['lower_level_subcategory'],
+                            'brand' => $this->brands($id),
+                            'thumbnail' => $rs['thumbnail'],
+                            'price' => $rs['price'],
+                            'description' => $rs['description'],
+                            'transmission' => $rs['transmission'],
+                            'fuel' => $rs['fuel'],
+                            'city' => $rs['city'],
+                            'country' => $rs['country'],
+                            'date_created' => $rs['date_created'],
+                        );
+                    }
+
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            default:
+                return array();
+                break;
+        }
+    }
+
+    public function requestDetails($cat, $id){
+
+        switch ($cat){
+            case "1":
+                $sql = "SELECT * FROM `services` WHERE `type` = 'Request' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'type' => $rs['type'],
+                            'parent' => $rs['parent_id'],
+                            'name' => $rs['name'],
+                            'details' => $rs['description']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+                break;
+            case "2":
+
+                $sql = "SELECT * FROM `accomodation` WHERE `type` = 'Request' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'property' => $rs['higher_level_sub_category'],
+                            'thumbnail' => $rs['thumbnail'],
+                            'bedrooms' => $rs['bedrooms'],
+                            'price' => $rs['price'],
+                            'town' => $rs['town'],
+                            'country' => $rs['country'],
+                            'date_vacant' => $rs['date_vacant']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            case "3":
+
+                $sql = "SELECT * FROM `jobs` WHERE `type` = 'Request' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'category' => $rs['higher_level_subcategory'],
+                            'field' => $rs['medium_level_subcategory'],
+                            'level' => $rs['level'],
+                            'qualification' => $rs['qualification'],
+                            'title' => $rs['name'],
+                            'deadline' => $rs['deadline'],
+                            'details' => $rs['description'],
+                            'city' => $rs['city'],
+                            'country' => $rs['country']
+                        );
+                    }
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            case "4":
+
+                $sql = "SELECT * FROM `vehicles`  WHERE `type` = 'Request' AND `listing_id` = '$id' ";
+                $qry = mysqli_query($this->con, $sql);
+                if (mysqli_num_rows($qry) > 0){
+                    $ls = "";
+                    while ($rs = mysqli_fetch_assoc($qry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'parent' => $rs['listing_id'],
+                            'type' => $rs['type'],
+                            'mode' => $rs['higher_level_sub_category'],
+                            'vehicleType' => $rs['middle_level_sub_category'],
+                            'subType' => $rs['lower_level_subcategory'],
+                            'brand' => $this->brands($id),
+                            'thumbnail' => $rs['thumbnail'],
+                            'price' => $rs['price'],
+                            'description' => $rs['description'],
+                            'transmission' => $rs['transmission'],
+                            'fuel' => $rs['fuel'],
+                            'city' => $rs['city'],
+                            'country' => $rs['country'],
+                            'date_created' => $rs['date_created'],
+                        );
+                    }
+
+                    return $ls;
+                }else{
+                    return array();
+                }
+
+                break;
+            default:
+                return array();
+                break;
+        }
+    }
+
+    public function Categories($id){
+        $lsql = "SELECT * FROM `categories` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = "";
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $ls = array(
+                    'id' => $rs['id'],
+                    'name' => $rs['name'],
+                    'description' => $rs['description'],
+                    'logo' => $rs['icon']
+                );
+            }
+
+            return $ls;
+        }else{
+            return array();
+        }
+    }
+
+    public function checkUserInfo(){
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $user = $payload->userId;
+            $details = $this->userDetails($user);
+            /*
+                $data = array(
+                    'name' => $row['name'],
+                    'surname' => $row['surname'],
+                    'email' => $row['email'],
+                    'msisdn' => $row['msisdn'],
+                    'address' => $row['address'],
+                    'town' => $row['town'],
+                    'country' => $row['country'],
+                    'profile' => $row['profile_image'],
+                    'status' => $row['status']
+                );
+             * */
+            // loop through to get empty fields, then return complete or not.
+            //add another table in db about notification preferences, if email is there, then send email also, and also if added phone numbers
+            //more than one for a fee, then check subscription etc, before send
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+            );
+        }
+    }
+
+    public function listing_Type($id){
+        $lsql = "SELECT * FROM `listing_type` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = "";
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $ls = array(
+                    'id' => $rs['id'],
+                    'name' => $rs['name'],
+                    'details' => $rs['description']
+                );
+            }
+
+            return $ls;
+        }else{
+            return array();
+        }
+    }
+
+    public function request_Type($id){
+        $lsql = "SELECT * FROM `request_type` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = "";
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $ls = array(
+                    'id' => $rs['id'],
+                    'name' => $rs['name'],
+                    'details' => $rs['description']
+                );
+            }
+
+            return $ls;
+        }else{
+            return array();
+        }
+    }
+
+    public function brands($id){
+        $lsql = "SELECT * FROM `brand` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $ls = "";
+            while ($rs = mysqli_fetch_assoc($lqry)){
+                $ls = array(
+                    'id' => $rs['id'],
+                    'name' => $rs['name'],
+                    'category' => $rs['category'],
+                    'higher' => $rs['higher'],
+                    'medium' => $rs['medium'],
+                    'logo' => $rs['icon']
+                );
+            }
+
+            return $ls;
+        }else{
+            return array();
+        }
+    }
+
+    public function matchList($id){
+        $lsql = "SELECT * FROM `listings` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $item = "";
+            while ($row = mysqli_fetch_assoc($lqry)){
+                $cat = $row['category'];
+                $userID = $row['user'];
+                $details = $this->listingDetails($cat, $id);
+                $user = $this->userDetails($userID);
+                $item = array('item'=>$details,'user'=> $user);
+            }
+
+            return $item;
+        }else{
+            return array();
+        }
+    }
+
+    public function matchSeen($id){
+
+        $stmt = $this->pdo->prepare("UPDATE `matches` SET `status` = '1' WHERE `id` = '$id'");
+
+        if ($stmt->execute()) {
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+
+    public function matchRequest($id){
+
+        $lsql = "SELECT * FROM `request` WHERE `id` = '$id'";
+        $lqry = mysqli_query($this->con, $lsql);
+
+        if (mysqli_num_rows($lqry) > 0){
+            $item = "";
+            while ($row = mysqli_fetch_assoc($lqry)){
+                $cat = $row['category'];
+                $userID = $row['user'];
+                $details = $this->requestDetails($cat, $id);
+                $user = $this->userDetails($userID);
+                $item = array('item'=>$details,'user'=> $user);
+            }
+
+            return $item;
+        }else{
+            return array();
+        }
+    }
+
+    public function matchDetails(){
+        try{
+            $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
+            $user = $payload->userId;
+            $id = $this->getId();
+            $sql = "SELECT * FROM `matches` WHERE `id` = '$id' AND `user` = '$user'";
+            $qry = mysqli_query($this->con, $sql);
+            if (mysqli_num_rows($qry) > 0) {
+                $this->matchSeen($id);
+                $listings =  array();
+
+                while ($row = mysqli_fetch_assoc($qry)){
+
+                    if ($row['type'] == 'Listing'){
+                        $item = $row['listing'];
+                        $lsql = "SELECT * FROM `listings` WHERE `id` = '$item'";
+                    }else{
+                        $item = $row['request'];
+                        $lsql = "SELECT * FROM `request` WHERE `id` = '$item'";
+                    }
+
+                    $lqry = mysqli_query($this->con, $lsql);
+
+                    while ($rs = mysqli_fetch_assoc($lqry)){
+                        $ls = array(
+                            'id' => $rs['id'],
+                            'category' => $this->Categories($rs['category']),
+                            'name' => $rs['name'],
+                            'type' => $row['type'],
+                            'details' => $this->requestDetails($rs['category'],$rs['id']),
+                            'match' => $row['type'] == 'Listing' ? $this->matchList($row['listing']) : $this->matchRequest($row['request']),
+                            'date_created' => $row['added'],
+                            'status' => $row['status']
+                        );
+                        array_push($listings, $ls);
+                    }
+                }
+
+
+
+                return array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'details'=> $listings);
+
+
+            }
+        }catch (\Exception $e){
+            return array(
+                'success' => false,
+                'statusCode' => INTERNAL_SERVER_ERROR,
+                'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => $e->getMessage())
+            );
+        }
+
+    }
+
     public function listingsMatches($id){
-        $sql = "SELECT * FROM `matches` WHERE `user` = '$id' AND `item_type` = '1'";
+        $sql = "SELECT * FROM `matches` WHERE `user` = '$id' AND `type` = 'Listing'";
         $qry = mysqli_query($this->con, $sql);
         if (mysqli_num_rows($qry) > 0){
             $listings =  array();
 
             while ($row = mysqli_fetch_assoc($qry)){
-                $item = $row['match_item'];
+
+                $item = $row['listing'];
                 $lsql = "SELECT * FROM `listings` WHERE `id` = '$item'";
                 $lqry = mysqli_query($this->con, $lsql);
 
                 while ($rs = mysqli_fetch_assoc($lqry)){
                     $ls = array(
                         'id' => $rs['id'],
-                        'user' => $row['user'],
-                        'category' => $rs['category'],
-                        'higher_level_sub_category' => $rs['higher_level_sub_category'],
-                        'middle_level_sub_category' => $rs['middle_level_sub_category'],
-                        'lower_level_sub_category' => $rs['lower_level_sub_category'],
-                        'brand' => $rs['brand'],
-                        'model' => $rs['model'],
+                        'category' => $this->Categories($rs['category']),
                         'name' => $rs['name'],
-                        'description' => $rs['description'],
-                        'type' => $rs['type'],
-                        'date_matched' => $row['added'],
-                        'post' => $rs['post'],
-                        'request' => $this->listing($row['item'])
+                        'type' => $row['type'],
+                        'details' => $this->listingDetails($rs['category'],$rs['id']),
+                        'match' => $this->matchRequest($row['request']),
+                        'date_created' => $row['added'],
+                        'status' => $row['status']
                     );
                     array_push($listings, $ls);
                 }
@@ -639,32 +1224,27 @@ class User extends System
     }
 
     public function requestsMatches($id){
-        $sql = "SELECT * FROM `matches` WHERE `user` = '$id' AND `item_type` = '2'";
+        $sql = "SELECT * FROM `matches` WHERE `user` = '$id' AND `type` = 'Request'";
         $qry = mysqli_query($this->con, $sql);
         if (mysqli_num_rows($qry) > 0){
             $listings =  array();
 
             while ($row = mysqli_fetch_assoc($qry)){
-                $item = $row['match_item'];
+
+                $item = $row['request'];
                 $lsql = "SELECT * FROM `request` WHERE `id` = '$item'";
                 $lqry = mysqli_query($this->con, $lsql);
 
                 while ($rs = mysqli_fetch_assoc($lqry)){
                     $ls = array(
                         'id' => $rs['id'],
-                        'user' => $row['user'],
-                        'category' => $rs['category'],
-                        'higher_level_sub_category' => $rs['higher_level_sub_category'],
-                        'middle_level_sub_category' => $rs['middle_level_sub_category'],
-                        'lower_level_sub_category' => $rs['lower_level_sub_category'],
-                        'brand' => $rs['brand'],
-                        'model' => $rs['model'],
+                        'category' => $this->Categories($rs['category']),
                         'name' => $rs['name'],
-                        'description' => $rs['description'],
-                        'type' => $rs['type'],
-                        'date_matched' => $row['added'],
-                        'post' => $rs['post'],
-                        'listing' => $this->request($row['item'])
+                        'type' => $row['type'],
+                        'details' => $this->requestDetails($rs['category'],$rs['id']),
+                        'match' => $this->matchList($row['listing']),
+                        'date_created' => $row['added'],
+                        'status' => $row['status']
                     );
                     array_push($listings, $ls);
                 }
@@ -727,25 +1307,35 @@ class User extends System
         try {
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $user_id = $payload->userId;
+            $user = $this->getDetails();
             $cat = $this->getCategory();
             $name = $this->getName();
             $subcat = $this->getSubcategory1();
             $subcat2 = $this->getSubcategory2();
-            $subcat3 = $this->getSubcategory3();
+            $subcat3 = $this->getModel();
             $fuel = $this->getVehicleFuel();
             $transmission = $this->getVehicleTransmission();
             $description = $this->getDesc();
-            $location = $this->getLocation();
+            $image = $this->getThumbnail();
             $town = $this->getTown();
             $price = $this->getPrice();
-            $country = $this->getCountry();
+            $brand = $this->getBrand();
+            $country = $user['user']['user']['country']; //get country from users data
             $type = 1;
 
-            $sql = "INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','0',now());
-                    INSERT INTO `vehicles`(`id`, `listing_id`, `request_id`, `higher_level_sub_category`, `middle_level_sub_category`, `lower_level_subcategory`, `thumbnail`, `description`, `transmission`, `fuel`, `location`, `city`, `country`, `price`, `date_created`) VALUES ('',LAST_INSERT_ID(),NULL,'$subcat','$subcat2','$subcat3','','$description','$transmission','$fuel','$location','$town','$country','$price',now())";
+            $sql = "INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','0',now())";
             $qry = mysqli_query($this->con, $sql);
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Vehicle Listing saved');
+                $id = mysqli_insert_id($this->con);
+                $ssql = "INSERT INTO `vehicles`(`id`, `type`, `listing_id`, `name`, `higher_level_sub_category`, `middle_level_sub_category`, `lower_level_subcategory`, `brand`, `thumbnail`, `description`, `transmission`, `fuel`, `city`, `country`, `price`, `date_created`) VALUES ('','Listing','$id', '$name','$subcat','$subcat2','$subcat3','$brand','$image','$description','$transmission','$fuel','$town','$country','$price',now())";
+                $qqry = mysqli_query($this->con, $ssql);
+                if ($qqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Vehicle Listing saved');
+                }else{
+                    $dsql = "DELETE FROM `listings` WHERE `id` = '$id'";
+                    $dqry = mysqli_query($this->con, $dsql);
+                }
+
             }else{
                 return array(
                     'success' => false,
@@ -766,7 +1356,7 @@ class User extends System
         }
     }
 
-    public function vehichleSubscribe(){
+    public function vehicleSubscribe(){
         //vehicle request
         try{
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
@@ -776,18 +1366,28 @@ class User extends System
             $subcat2 = $this->getSubcategory2();
             $subcat3 = $this->getSubcategory3();
             $fuel = $this->getVehicleFuel();
+            $brand = $this->getBrand();
             $transmission = $this->getVehicleTransmission();
             $town = $this->getTown();
             $price = $this->getPrice();
             $price2 = $price."-".$this->getPrice2();
+            $name = $this->getName();
             $country = $this->getCountry();
             $type = 1;
 
-            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','','$type','1',now());
-                    INSERT INTO `vehicles`(`id`, `listing_id`, `request_id`, `higher_level_sub_category`, `middle_level_sub_category`, `lower_level_subcategory`, `thumbnail`, `description`, `transmission`, `fuel`, `location`, `city`, `country`, `price`, `date_created`) VALUES ('',NULL,LAST_INSERT_ID(),'$subcat','$subcat2','$subcat3','','','$transmission','$fuel','','$town','$country','$price2',now())";
+            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','1',now())";
             $qry = mysqli_query($this->con, $sql);
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Vehicle Listing saved');
+                $id = mysqli_insert_id($this->con);
+                $ssql = "INSERT INTO `vehicles`(`id`, `type`, `listing_id`, `name`, `higher_level_sub_category`, `middle_level_sub_category`, `lower_level_subcategory`, `brand`, `thumbnail`, `description`, `transmission`, `fuel`, `city`, `country`, `price`, `date_created`) VALUES ('','Request','$id', '$name','$subcat','$subcat2','$subcat3',,'$brand','','','$transmission','$fuel','$town','$country','$price2',now())";
+                $qqry = mysqli_query($this->con, $ssql);
+                if ($qqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Vehicle Listing saved');
+
+                }else{
+                    $dsql = "DELETE FROM `request` WHERE `id` = '$id'";
+                    $dqry = mysqli_query($this->con, $dsql);
+                }
             }else{
                 return array(
                     'success' => false,
@@ -817,11 +1417,29 @@ class User extends System
             $cat =  $this->getCategory();
             $service = $this->getId();
             $name =  $this->getName();
-           $sql = "INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','1', '0',now());
-                   INSERT INTO `services`(`id`, `parent_id`, `listing_id`, `request_id`,  `name`, `description`) VALUES ('','$service',LAST_INSERT_ID(), NULL,'$name','')";
+            $notes = $this->getDesc();
+           $sql = "INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','1', '1',now())";
            $qry = mysqli_query($this->con, $sql);
+
            if ($qry){
-               return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Service Listing saved');
+               $id = mysqli_insert_id($this->con);
+
+               $nsql = "INSERT INTO `services`(`id`,`type`, `parent_id`, `listing_id`, `name`, `description`) VALUES ('','Listing','$service','$id','$name','$notes')";
+                $nqry = mysqli_query($this->con, $nsql);
+               if ($nqry){
+                   return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Service Listing saved');
+               }else{
+                   $dsql = "DELETE FROM `listings` WHERE `id` = '$id'";
+                   $dqry = mysqli_query($this->con, $dsql);
+                   return array(
+                       'success' => false,
+                       'statusCode' => INTERNAL_SERVER_ERROR,
+                       'error' => array(
+                           'type' => "SERVER_ERROR",
+                           'message' => 'Services listing failed to save in Services table. Error: '. mysqli_error($this->con))
+                   );
+               }
+
 
            }else{
                return array(
@@ -848,12 +1466,28 @@ class User extends System
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $user_id = $payload->userId;
             $cat =  $this->getCategory();
+            $name  = $this->getName();
             $service = $this->getId();
-            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','','1', '1',now());
-                   INSERT INTO `services`(`id`, `parent_id`, `listing_id`, `request_id`,  `name`, `description`) VALUES ('','$service',NULL,LAST_INSERT_ID(),'','')";
+            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','1', '1',now())";
             $qry = mysqli_query($this->con, $sql);
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Service Request saved');
+                $id = mysqli_insert_id($this->con);
+                $ssql = "INSERT INTO `services`(`id`,`type`, `parent_id`, `listing_id`, `name`, `description`) VALUES ('','Request','$service','$id','$name','')";
+                $qqry = mysqli_query($this->con, $ssql);
+                if ($qqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Service Request saved');
+
+                }else{
+                    $dsql = "DELETE FROM `services` WHERE `id` = '$id'";
+                    $qqry = mysqli_query($this->con, $ssql);
+                    return array(
+                        'success' => false,
+                        'statusCode' => INTERNAL_SERVER_ERROR,
+                        'error' => array(
+                            'type' => "SERVER_ERROR",
+                            'message' => 'Services Request failed to save.')
+                    );
+                }
 
             }else{
                 return array(
@@ -924,13 +1558,22 @@ class User extends System
             $subcat = $this->getSubcategory1();
             $subcat2 = $this->getSubcategory2();
             $town = $this->getTown();
+            $name = $this->getName();
             $country = $this->getCountry();
             $type = 1;
-            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','','$type','1',now());
-                    INSERT INTO `jobs`(`id`, `listing_id`, `request_id`, `higher_level_subcategory`, `medium_level_subcategory`, `qualification`, `name`, `deadline`, `description`, `level`, `city`, `country`) VALUES ('',NULL,LAST_INSERT_ID(),'$subcat','$subcat2','$qualification','','','','$level','$town','$country')";
+            $sql = "INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','1',now())";
+
             $qry = mysqli_query($this->con, $sql);
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Job Request saved');
+                $id = mysqli_insert_id($this->con);
+                $slq = "INSERT INTO `jobs`(`id`, `type`, `listing_id`, `name`,`higher_level_subcategory`, `medium_level_subcategory`, `qualification`, `name`, `deadline`, `description`, `level`, `city`, `country`) VALUES ('','Request','$id','$name','$subcat','$subcat2','$qualification','','','','$level','$town','$country')";
+                $qqry = mysqli_query($this->con, $slq);
+                if ($qqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Job Request saved');
+                }else{
+                    $qsl = "DELETE FROM `jobs` WHERE `id` = '$id'";
+                    $dqr = mysqli_query($this->con, $qsl);
+                }
             }else{
                 return array(
                     'success' => false,
@@ -941,7 +1584,6 @@ class User extends System
                 );
             }
 
-            return 1;
         }catch (\Exception $e){
             return array(
                 'success' => false,
@@ -964,17 +1606,23 @@ class User extends System
             $town = $this->getTown();
             $country = $this->getCountry();
             $cat = $this->getCategory();
-            $address = $this->getAddress();
+            $image = $this->getThumbnail();
+            $notes = $this->getDesc();
             $type = 2;
-            $location = $this->getLocation();
-            //change post to 1 if thumbnail upload can be done at the same time
-            $sql ="INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','0',now());
-                   INSERT INTO `accomodation`(`id`, `listing_id`, `request_id`, `higher_level_sub_category`, `thumbnail`, `bedrooms`, `price`, `location`, `town`, `address`, `country`, `date_vacant`) VALUES ('',LAST_INSERT_ID,NULL,'$subcat','','$bedrooms','$price','$location','$town','$address','$country','$dateVacant')";
-
+            $sql ="INSERT INTO `listings`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','$name','$type','1',now())";
             $qry = mysqli_query($this->con, $sql);
-
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Accomodation Listing saved');
+                $id = mysqli_insert_id($this->con);
+                $ssql = "INSERT INTO `accomodation`(`id`, `type`, `listing_id`, `name`, `higher_level_sub_category`, `thumbnail`, `bedrooms`, `price`, `town`, `country`, `date_vacant`, `details`) VALUES ('', 'Listing','$id','$name','$subcat','$image','$bedrooms','$price','$town','$country','$dateVacant', '$notes')";
+                $ssqry = mysqli_query($this->con, $ssql);
+                if ($ssqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Accommodation Listing saved');
+
+                }else{
+                    $dsql = "DELETE FROM accomodation WHERE `id` = '$id'";
+                    $dqry = mysqli_query($this->con, $dsql);
+                }
+
             }else{
                 return array(
                     'success' => false,
@@ -1003,19 +1651,26 @@ class User extends System
             $cat = $this->getCountry();
             $subcat = $this->getSubcategory1();
             $bedrooms = $this->getBedrooms();
-            $dateVacant = $this->getDateStart();
             $price = $this->getPrice();
+            $thumbnail = $this->getThumbnail();
             $town = $this->getTown();
             $country = $this->getCountry();
             $price2 = $price." - ". $this->getPrice2();
             $type = 2;
-            $sql ="INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','','$type','1',now());
-                   INSERT INTO `accomodation`(`id`, `listing_id`, `request_id`, `higher_level_sub_category`, `thumbnail`, `bedrooms`, `price`, `location`, `town`, `address`, `country`, `date_vacant`) VALUES ('',NULL,LAST_INSERT_ID,'$subcat','','$bedrooms','$price2','','$town','','$country','$dateVacant')";
+            $sql ="INSERT INTO `request`(`id`, `user`, `category`, `name`, `type`, `post`, `added`) VALUES ('','$user_id','$cat','','$type','1',now())";
 
             $qry = mysqli_query($this->con, $sql);
 
             if ($qry){
-                return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Accomodation Request saved');
+                $id = mysqli_insert_id($this->con);
+                $ssql = "INSERT INTO `accomodation`(`id`, `type`, `listing_id`, `name`, `higher_level_sub_category`, `thumbnail`, `bedrooms`, `price`, `town`, `country`) VALUES ('','Request','$id','','$subcat','$thumbnail','$bedrooms','$price2','$town','$country')";
+                $qqry = mysqli_query($this->con, $ssql);
+                if ($qqry){
+                    return array('success' => true, 'statusCode' => CREATED, 'message'=> 'Accommodation Request saved');
+                }else{
+                    $dsql = "DELETE FROM `accommodation` WHERE `id` = '$id'";
+                    $qry = mysqli_query($this->con, $dsql);
+                }
             }else{
                 return array(
                     'success' => false,
@@ -1039,18 +1694,98 @@ class User extends System
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $user_id = $payload->userId;
             $id = $this->getId();
-            $sql = "DELETE FROM `listings` WHERE `id` ='$id'";
-            $qry = mysqli_query($this->con, $sql);
-            if ($qry){
-                $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Listing removed');
-                return $data;
-            }else{
-                return array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing listing failed: ".mysqli_error_list($this->con))
-                );
+
+            $query = "SELECT * FROM `listings` WHERE  `id` = :id; AND `user` = :user;";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':id' =>$id, ':user' => $user_id));
+
+            $row = $stmt-> fetch(PDO::FETCH_ASSOC);
+
+            switch ($row['category']){
+                case "1":
+
+                    $sql = "DELETE FROM `listings` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `services` WHERE `listing_id` = '$id' AND `type` = 'Listing'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Listing removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing listing failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+                case '2':
+
+                    $sql = "DELETE FROM `listings` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `accomodation` WHERE `listing_id` = '$id' AND `type` = 'Listing'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Listing removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing listing failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+
+                case '3':
+
+                    $sql = "DELETE FROM `listings` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `jobs` WHERE `listing_id` = '$id' AND `type` = 'Listing'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Listing removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing listing failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+
+                    break;
+                case '4':
+                    $sql = "DELETE FROM `listings` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `vehicles` WHERE `listing_id` = '$id' AND `type` = 'Listing'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Listing removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing listing failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+                default:
+
+
+                    break;
             }
+
         }catch (\Exception $e){
             return array(
                 'success' => false,
@@ -1066,17 +1801,96 @@ class User extends System
             $payload = JWT::decode($this->getToken(), SECRETE_KEY, ['HS256']);
             $user_id = $payload->userId;
             $id = $this->getId();
-            $sql = "DELETE FROM `request` WHERE `id` = '$id'";
-            $qry = mysqli_query($this->con, $sql);
-            if ($qry){
-                $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Request removed');
-                return $data;
-            }else{
-                return array(
-                    'success' => false,
-                    'statusCode' => INTERNAL_SERVER_ERROR,
-                    'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing request failed: ".mysqli_error_list($this->con))
-                );
+
+            $query = "SELECT * FROM `request` WHERE  `id` = :id; AND `user` = :user;";
+
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array(':id' =>$id, ':user' => $user_id));
+
+            $row = $stmt-> fetch(PDO::FETCH_ASSOC);
+
+            switch ($row['category']){
+                case "1":
+
+                    $sql = "DELETE FROM `request` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `services` WHERE `listing_id` = '$id' AND `type` = 'Request'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Request removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing request failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+                case '2':
+
+                    $sql = "DELETE FROM `request` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `accomodation` WHERE `listing_id` = '$id' AND `type` = 'Request'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Request removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing request failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+
+                case '3':
+
+                    $sql = "DELETE FROM `request` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `jobs` WHERE `listing_id` = '$id' AND `type` = 'Request'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Request removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing request failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+
+                    break;
+                case '4':
+                    $sql = "DELETE FROM `request` WHERE `id` ='$id'";
+                    $qry = mysqli_query($this->con, $sql);
+
+                    $ds = "DELETE FROM `vehicles` WHERE `listing_id` = '$id' AND `type` = 'Request'";
+                    $dqr = mysqli_query($this->con, $ds);
+                    if ($qry && $dqr){
+                        $data = array('success' => true, 'statusCode' => SUCCESS_RESPONSE, 'message'=> 'Request removed');
+                        return $data;
+                    }else{
+                        return array(
+                            'success' => false,
+                            'statusCode' => INTERNAL_SERVER_ERROR,
+                            'error' => array('type' => 'PROCESS_SERVER_ERROR', 'message' => "Removing request failed: ".mysqli_error_list($this->con))
+                        );
+                    }
+
+                    break;
+                default:
+
+
+                    break;
             }
         }catch (\Exception $e){
             return array(
@@ -1087,6 +1901,5 @@ class User extends System
         }
 
     }
-
 
 }

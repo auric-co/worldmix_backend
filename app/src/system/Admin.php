@@ -17,6 +17,44 @@ class Admin extends System
     protected $status;
     protected $file;
     protected $level;
+    protected $permissions;
+    protected $dept;
+
+
+    /**
+     * @return mixed
+     */
+    public function getDept()
+    {
+        return $this->dept;
+    }
+
+
+    /**
+     * @param mixed $permissions
+     */
+    public function setPermissions($permissions)
+    {
+        $this->permissions = $permissions;
+    }
+
+
+    /**
+     * @param mixed $dept
+     */
+    public function setDept($dept)
+    {
+        $this->dept = $dept;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getPermissions()
+    {
+        return $this->permissions;
+    }
 
     /**
      * @return mixed
@@ -149,19 +187,11 @@ class Admin extends System
 
     public function create(){
 
-        $cat = $this->getCategory();
         $email = $this->getEmail();
-        $name = $this->getName();
-        $surname = $this->getLastName();
-        $gender = $this->getGender();
-        $dob = $this->getDob();
-        $marital_status = $this->getMaritalStatus();
-        $address = $this->getAddress();
-        $mobile = $this->getMobile();
+        $perm = $this->getPermissions();
         $dept = $this->getDept();
         $pwd = password_hash($this->getPassword(), PASSWORD_BCRYPT, array("cost" => 10));
-        $permissions = $this->getPermission();
-        $sql = "INSERT INTO `admin`(`id`, `email`, `password`, `permisions`, `name`, `surname`, `gender`, `dob`, `marital_status`, `address`, `mobile`, `dept`, `profile`, `category`) VALUES ('','$email','$pwd','$permissions','$name','$surname', '$gender', '$dob', '$marital_status', '$address', '$mobile', '$dept','','$cat')";
+        $sql = "INSERT INTO `admin`(`id`, `email`, `password`, `permisions`, `name`, `surname`, `profile`, `category`) VALUES ('','$email','$pwd','$perm','','','','$dept')";
         $qry = mysqli_query($this->con, $sql);
 
         if ($qry){
@@ -386,43 +416,7 @@ class Admin extends System
         }
     }
 
-    public function removeMember($id){
-        $dsql = "DELETE FROM `members` WHERE `id` = '$id'";
-        $qry = mysqli_query($this->con, $dsql);
 
-        $dtsql = "DELETE FROM `member_details` WHERE `member_id` = '$id'";
-        $dtqry = mysqli_query($this->con, $dtsql);
-
-        $dlsql = "DELETE FROM `member_login` WHERE `member_id` = '$id'";
-        $dlqry = mysqli_query($this->con, $dlsql);
-
-        $dpsql = "DELETE FROM `dependant` WHERE `member_id` = '$id'";
-        $dpqry = mysqli_query($this->con,$dpsql);
-
-        $psql = "DELETE FROM `payment` WHERE `member_id` = '$id'";
-        $pqry = mysqli_query($this->con, $psql);
-
-        $ssql = "DELETE FROM `subscriptions` WHERE `member_id` = '$id'";
-        $ssqry = mysqli_query($this->con, $ssql);
-
-
-        if ($qry && $dtqry && $dlqry && $dpqry && $pqry && $ssqry){
-            $data = array(
-                'success' => true,
-                'statusCode' => SUCCESS_RESPONSE,
-                'message' => 'Member successfully removed'
-            );
-            return $data;
-        }else{
-            $data =  array(
-                'success' => false,
-                'statusCode' => INTERNAL_SERVER_ERROR,
-                'error' => array('type' => 'INTERNAL_SERVER_ERROR', 'message' => 'Error while removing account: ' .mysqli_error($this->con) )
-            );
-            return $data;
-        }
-
-    }
 
     public function adminUpdate(){
 
